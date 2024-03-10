@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
+    tools:context=".fragments.NumberFragment">
+
+       <com.google.android.material.card.MaterialCardView
+           android:id="@+id/more"
+           android:layout_width="32dp"
+           android:layout_height="32dp"
+           app:cardCornerRadius="100dp"
+           app:cardElevation="0dp"
+           app:strokeWidth="0dp"
+           android:layout_alignParentEnd="true"
+           android:layout_margin="10dp"
+           app:cardBackgroundColor="@color/white">
+
+           <ImageView
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_gravity="center"
+               android:src="@drawable/ellipsis_vertical_solid" />
+
+       </com.google.android.material.card.MaterialCardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/more"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Phone number"
+            android:layout_margin="15dp"
+            android:textSize="22sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enter your phone number to get started."
+            android:layout_marginHorizontal="15dp"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/colonyID"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                app:boxStrokeColor="@color/blue"
+                app:hintEnabled="true"
+                android:layout_marginEnd="4dp"
+                app:hintTextColor="@color/blue">
+
+                <AutoCompleteTextView
+                    android:id="@+id/colonyIdLIst"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="+92"
+                    android:hint="+0" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/number"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:boxStrokeColor="@color/blue"
+                android:layout_weight="1"
+                app:hintEnabled="true"
+                android:layout_marginStart="4dp"
+                app:boxBackgroundColor="@color/bg"
+                android:hint="Phone Number"
+                app:hintTextColor="@color/blue">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Continue"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="15dp"
+        android:textColor="@color/dark_blue_2"
+        android:backgroundTint="@color/bg"
+        android:id="@+id/continueBtn" />
+
+</RelativeLayout>
