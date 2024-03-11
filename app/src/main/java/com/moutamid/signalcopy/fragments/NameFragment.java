@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,8 +31,8 @@ import java.util.UUID;
 
 public class NameFragment extends Fragment {
     FragmentNameBinding binding;
-    Uri image = Uri.EMPTY;
-
+    Uri image;
+    private static final String TAG = "NameFragment";
     private static final int PICK_IMAGE_REQUEST = 1001;
     public NameFragment() {
         // Required empty public constructor
@@ -44,8 +45,10 @@ public class NameFragment extends Fragment {
 
         binding.continueBtn.setOnClickListener(v -> {
             String s = Stash.getString("numb");
-            UserModel userModel = new UserModel(UUID.randomUUID().toString(), binding.name.getText().toString(), s, image);
+            Log.d(TAG, "onCreateView: " + s);
+            UserModel userModel = new UserModel(binding.name.getText().toString(), s, image.toString());
             Stash.put(Constants.STASH_USER, userModel);
+
             startActivity(new Intent(requireContext(), MainActivity.class));
             requireActivity().finish();
         });

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.avatarfirst.avatargenlib.AvatarGenerator;
@@ -23,6 +24,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
+    private static final String TAG = "MainActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,15 +34,17 @@ public class MainActivity extends AppCompatActivity {
 
         UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
 
-        Glide.with(this).load(userModel.getImage()).placeholder(
-                new AvatarGenerator.AvatarBuilder(MainActivity.this)
-                        .setLabel(userModel.getName().trim().toUpperCase(Locale.ROOT))
-                        .setAvatarSize(70)
-                        .setBackgroundColor(R.color.pink)
-                        .setTextSize(13)
-                        .toCircle()
-                        .build()
-        ).into(binding.profile);
+        Log.d(TAG, "onCreate: " + userModel);
+
+//        Glide.with(this).load(userModel.getImage()).placeholder(
+//                new AvatarGenerator.AvatarBuilder(MainActivity.this)
+//                        .setLabel(userModel.getName().trim().toUpperCase(Locale.ROOT))
+//                        .setAvatarSize(70)
+//                        .setBackgroundColor(R.color.pink)
+//                        .setTextSize(13)
+//                        .toCircle()
+//                        .build()
+//        ).into(binding.profile);
 
         binding.bottomNav.setItemActiveIndicatorColor(ColorStateList.valueOf(getResources().getColor(R.color.active)));
         binding.bottomNav.setOnNavigationItemSelectedListener(item -> {

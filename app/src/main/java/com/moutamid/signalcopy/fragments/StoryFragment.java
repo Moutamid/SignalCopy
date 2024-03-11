@@ -25,7 +25,6 @@ public class StoryFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -34,9 +33,9 @@ public class StoryFragment extends Fragment {
         UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
 
         Glide.with(this)
-                .load(userModel.getImage()).placeholder(
+                .load(userModel.image).placeholder(
                         new AvatarGenerator.AvatarBuilder(requireContext())
-                                .setLabel(userModel.getName().trim().toUpperCase(Locale.ROOT))
+                                .setLabel(userModel.name.trim().toUpperCase(Locale.ROOT))
                                 .setAvatarSize(70)
                                 .setBackgroundColor(R.color.pink)
                                 .setTextSize(13)

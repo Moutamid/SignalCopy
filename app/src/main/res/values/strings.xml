@@ -3,4 +3,5 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="learn_more">Profiles are visible to people your message, contacts, and groups. <font color="#36979f">Learn more</font></string>
+    <string name="lorem">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquam atque commodi est labore veniam voluptatibus!</string>
 </resources>

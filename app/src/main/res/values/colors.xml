@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
+    <color name="black2">#535353</color>
     <color name="white">#FFFFFFFF</color>
     <color name="dark_blue">#00235e</color>
     <color name="dark_blue_2">#0d4374</color>
@@ -14,5 +15,7 @@
     <color name="red">#e4032e</color>
     <color name="yellow">#ffff63</color>
     <color name="blue">#009bd9</color>
+    <color name="trans">#00009BD9</color>
     <color name="chat">#325DF3</color>
+    <color name="chat_income">#E7EAF3</color>
 </resources>
