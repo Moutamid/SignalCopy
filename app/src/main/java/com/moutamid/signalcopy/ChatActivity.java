@@ -26,8 +26,10 @@ import com.avatarfirst.avatargenlib.AvatarGenerator;
 import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.android.material.timepicker.MaterialTimePicker;
+import com.google.android.material.timepicker.TimeFormat;
 import com.moutamid.signalcopy.adapters.GalleryAdapter;
 import com.moutamid.signalcopy.adapters.MessageAdapter;
 import com.moutamid.signalcopy.databinding.ActivityChatBinding;
@@ -35,6 +37,7 @@ import com.moutamid.signalcopy.model.ContactsModel;
 import com.moutamid.signalcopy.model.MessageModel;
 import com.moutamid.signalcopy.model.UserModel;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -222,14 +225,12 @@ public class ChatActivity extends AppCompatActivity {
 
             TextView heading = dialog.findViewById(R.id.heading);
             TextView message = dialog.findViewById(R.id.message);
-            MaterialCheckBox check = dialog.findViewById(R.id.check);
             MaterialButton cancel = dialog.findViewById(R.id.cancel);
             MaterialButton delete = dialog.findViewById(R.id.delete);
 
 
             heading.setText("Delete Message");
             message.setText("Are you sure you want to delete this message?");
-            check.setText("Also delete for " + contactsModel.name);
             delete.setText("Delete");
 
             cancel.setOnClickListener(v -> dialog.dismiss());
@@ -239,7 +240,73 @@ public class ChatActivity extends AppCompatActivity {
                 deleteMessage(messageModel);
             });
         }
+
+        @Override
+        public void onEdit(MessageModel messageModel) {
+            Dialog dialog = new Dialog(ChatActivity.this);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setContentView(R.layout.edit_layout);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.setCancelable(true);
+            dialog.show();
+
+            TextInputLayout message = dialog.findViewById(R.id.message);
+            MaterialButton cancel = dialog.findViewById(R.id.cancel);
+            MaterialButton time = dialog.findViewById(R.id.time);
+            MaterialButton delete = dialog.findViewById(R.id.delete);
+            TextView pikedTime = dialog.findViewById(R.id.pikedTime);
+
+            final String[] t = {""};
+            final long[] selectedTimeInMillis = new long[1];
+            selectedTimeInMillis[0] = messageModel.getTimestamp();
+            String s = new SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(selectedTimeInMillis[0]);
+            pikedTime.setText(s);
+            t[0] = s;
+
+            time.setOnClickListener(v -> {
+                MaterialTimePicker picker = new MaterialTimePicker.Builder()
+                        .setTimeFormat(TimeFormat.CLOCK_24H)
+                        .setHour(12)
+                        .setMinute(0)
+                        .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+                        .setPositiveButtonText("Set Time")
+                        .build();
+                picker.show(ChatActivity.this.getSupportFragmentManager(),  "");
+                picker.addOnPositiveButtonClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int selectedHour = picker.getHour();
+                        int selectedMinute = picker.getMinute();
+                        selectedTimeInMillis[0] = convertToMilliseconds(selectedHour, selectedMinute);
+                        t[0] = selectedHour + ":" + selectedMinute;
+                        pikedTime.setText(t[0]);
+                    }
+                });
+            });
+
+            cancel.setOnClickListener(v -> dialog.dismiss());
+
+            delete.setOnClickListener(v -> {
+                dialog.dismiss();
+                editMessage(messageModel, selectedTimeInMillis[0], message.getEditText().getText().toString());
+            });
+        }
     };
+
+    private long convertToMilliseconds(int hour, int minute) {
+        return (hour * 60L + minute) * 60L * 1000L;
+    }
+
+    private void editMessage(MessageModel messageModel, long time, String msg) {
+        int i = retrievePosition(list, messageModel.getId());
+        if (i != -1){
+            list.get(i).setMessage(msg);
+            list.get(i).setTimestamp(time);
+            adapter.notifyItemRemoved(i);
+            Stash.put(contactsModel.id, list);
+        }
+    }
 
     public static int retrievePosition(ArrayList<MessageModel> modelList, String id) {
         for (int index = 0; index < modelList.size(); index++) {

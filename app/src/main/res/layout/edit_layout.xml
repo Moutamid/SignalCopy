@@ -26,16 +26,50 @@
             android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="bold"
-            tools:text="Clear History" />
+            android:text="Edit Message" />
 
-        <TextView
+        <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/message"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            tools:text="Clear History" />
+            app:boxStrokeColor="@color/blue"
+            app:hintEnabled="true"
+            android:layout_marginTop="10dp"
+            app:boxBackgroundColor="@color/bottom"
+            android:hint="Message"
+            app:hintTextColor="@color/blue">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/active"
+                android:text="Pick a time"
+                android:textColor="@color/dark_blue_2" />
+
+            <TextView
+                android:id="@+id/pikedTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="00/00/0000 00:00 AM"
+                android:textSize="16sp" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -57,10 +91,10 @@
                 android:id="@+id/delete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Delete"
-                android:textColor="@color/red"
+                android:text="Edit"
+                android:textColor="@color/blue"
                 android:textStyle="bold"
-                app:backgroundTint="@color/white"
+                app:backgroundTint="@color/active"
                 app:cornerRadius="12dp" />
 
         </LinearLayout>

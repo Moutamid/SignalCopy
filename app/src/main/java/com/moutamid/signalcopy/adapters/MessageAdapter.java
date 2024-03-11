@@ -11,6 +11,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.view.menu.MenuBuilder;
+import androidx.appcompat.view.menu.MenuPopupHelper;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -95,7 +98,24 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
 
         holder.itemView.setOnLongClickListener(v -> {
-            deleteListener.onHoldClick(list.get(holder.getAbsoluteAdapterPosition()));
+
+            PopupMenu popupMenu = new PopupMenu(context, v);
+            popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
+            popupMenu.setOnMenuItemClickListener(item -> {
+                int itemId = item.getItemId();
+                if (itemId == R.id.edit) {
+                    deleteListener.onEdit(list.get(holder.getAbsoluteAdapterPosition()));
+                    return true;
+                } else if (itemId == R.id.delete) {
+                    deleteListener.onHoldClick(list.get(holder.getAbsoluteAdapterPosition()));
+                    return true;
+                }
+                return false;
+            });
+            popupMenu.show();
+//            MenuPopupHelper menuHelper = new MenuPopupHelper(context, (MenuBuilder) popupMenu.getMenu(),v);
+//            menuHelper.setForceShowIcon(true);
+//            menuHelper.show();
             return true;
         });
 

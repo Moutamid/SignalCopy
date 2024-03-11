@@ -54,7 +54,6 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
                                 .toCircle()
                                 .build()
                 ).into(holder.profile);
-
         holder.name.setText(model.name);
         holder.lastMessage.setText(model.lastMessage);
         long currentTimeMillis = System.currentTimeMillis();
@@ -68,7 +67,6 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
             long hoursPassed = timeDifference / (60 * 60 * 1000);
             holder.time.setText(hoursPassed + "h");
         }
-
         holder.itemView.setOnClickListener(v -> {
             Stash.put("PASS", model);
             context.startActivity(new Intent(context, ChatActivity.class));

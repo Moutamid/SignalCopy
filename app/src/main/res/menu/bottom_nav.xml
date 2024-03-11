@@ -8,5 +8,5 @@
         android:icon="@drawable/calls_icon" />
     <item android:id="@+id/story"
         android:title="Stories"
-        android:icon="@drawable/chat_icon" />
+        android:icon="@drawable/copy" />
 </menu>
