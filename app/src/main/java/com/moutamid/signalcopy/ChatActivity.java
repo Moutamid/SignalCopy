@@ -1,8 +1,10 @@
 package com.moutamid.signalcopy;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,22 +13,35 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.avatarfirst.avatargenlib.AvatarGenerator;
 import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.moutamid.signalcopy.adapters.GalleryAdapter;
+import com.moutamid.signalcopy.adapters.MessageAdapter;
 import com.moutamid.signalcopy.databinding.ActivityChatBinding;
 import com.moutamid.signalcopy.model.ContactsModel;
+import com.moutamid.signalcopy.model.MessageModel;
+import com.moutamid.signalcopy.model.UserModel;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
+import java.util.UUID;
 
 public class ChatActivity extends AppCompatActivity {
+    private static final int PICK_IMAGE_REQUEST = 1001;
     ActivityChatBinding binding;
     ContactsModel contactsModel;
     boolean isSend = false;
@@ -43,6 +58,9 @@ public class ChatActivity extends AppCompatActivity {
         binding.name2.setText(contactsModel.name);
         binding.number.setText(contactsModel.number);
 
+        binding.chatRC.setLayoutManager(new LinearLayoutManager(this));
+        binding.chatRC.setHasFixedSize(false);
+
         Glide.with(this)
                 .load(new AvatarGenerator.AvatarBuilder(this)
                         .setLabel(contactsModel.name.trim().toUpperCase(Locale.ROOT))
@@ -52,6 +70,16 @@ public class ChatActivity extends AppCompatActivity {
                         .toCircle()
                         .build()
                 ).into(binding.profile);
+
+        Glide.with(this)
+                .load(new AvatarGenerator.AvatarBuilder(this)
+                        .setLabel(contactsModel.name.trim().toUpperCase(Locale.ROOT))
+                        .setAvatarSize(70)
+                        .setBackgroundColor(R.color.pink)
+                        .setTextSize(13)
+                        .toCircle()
+                        .build()
+                ).into(binding.profile2);
 
         binding.back.setOnClickListener(v -> onBackPressed());
 
@@ -83,7 +111,7 @@ public class ChatActivity extends AppCompatActivity {
         binding.gallery.setOnClickListener(v -> {
             if (Constants.checkPermission(this)) {
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(Intent.createChooser(intent, "Pick Image"), 1001);
+                startActivityForResult(Intent.createChooser(intent, "Pick Image"), PICK_IMAGE_REQUEST);
             } else {
                 String[] permissions;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -163,19 +191,135 @@ public class ChatActivity extends AppCompatActivity {
                         .setMessage("Send message to whom?")
                         .setPositiveButton("Myself", (dialog, which) -> {
                             dialog.dismiss();
-                            sendMessage(true);
+                            receive(binding.message.getText().toString() + "\t\t", false, binding.message.getText().toString());
                         }).setNegativeButton(contactsModel.name, (dialog, which) -> {
                             dialog.dismiss();
-                            sendMessage(false);
+                            send(binding.message.getText().toString() + "\t\t\t", false, binding.message.getText().toString());
                         })
                         .show();
             }
         });
     }
 
-    private void sendMessage(boolean b) {
-
+    ArrayList<MessageModel> list;
+    MessageAdapter adapter;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getMessages();
     }
+
+    DeleteListener deleteListener = new DeleteListener() {
+        @Override
+        public void onHoldClick(MessageModel messageModel) {
+            Dialog dialog = new Dialog(ChatActivity.this);
+            dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+            dialog.setContentView(R.layout.delete_dialog);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            dialog.setCancelable(true);
+            dialog.show();
+
+            TextView heading = dialog.findViewById(R.id.heading);
+            TextView message = dialog.findViewById(R.id.message);
+            MaterialCheckBox check = dialog.findViewById(R.id.check);
+            MaterialButton cancel = dialog.findViewById(R.id.cancel);
+            MaterialButton delete = dialog.findViewById(R.id.delete);
+
+
+            heading.setText("Delete Message");
+            message.setText("Are you sure you want to delete this message?");
+            check.setText("Also delete for " + contactsModel.name);
+            delete.setText("Delete");
+
+            cancel.setOnClickListener(v -> dialog.dismiss());
+
+            delete.setOnClickListener(v -> {
+                dialog.dismiss();
+                deleteMessage(messageModel);
+            });
+        }
+    };
+
+    public static int retrievePosition(ArrayList<MessageModel> modelList, String id) {
+        for (int index = 0; index < modelList.size(); index++) {
+            MessageModel model = modelList.get(index);
+            if (model.getId().equals(id)) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    private void deleteMessage(MessageModel messageModel) {
+        int i = retrievePosition(list, messageModel.getId());
+        Log.d(TAG, "deleteMessage: " + messageModel.getId());
+        Log.d(TAG, "deleteMessage: " + i);
+        if (i != -1){
+            list.remove(i);
+            adapter.notifyItemRemoved(i);
+            Stash.put(contactsModel.id, list);
+
+            contactsModel.lastMessage = "Message Deleted";
+            contactsModel.time = new Date().getTime();
+            ArrayList<ContactsModel> chatList = Stash.getArrayList(Constants.USERS, ContactsModel.class);
+            int index = retrieveIndex(chatList);
+            chatList.set(index, contactsModel);
+            Stash.put(Constants.USERS, chatList);
+        }
+    }
+
+    private void getMessages() {
+        list = Stash.getArrayList(contactsModel.id, MessageModel.class);
+        adapter = new MessageAdapter(this, list, contactsModel.name, deleteListener);
+        binding.chatRC.setAdapter(adapter);
+        binding.chatRC.scrollToPosition(list.size() - 1);
+    }
+
+    private void receive(String message, boolean isMedia, String last) {
+        if (!message.isEmpty() || isMedia) {
+            binding.message.setText("");
+            contactsModel.lastMessage = last;
+            contactsModel.time = new Date().getTime();
+            ArrayList<ContactsModel> chatList = Stash.getArrayList(Constants.USERS, ContactsModel.class);
+            int index = retrieveIndex(chatList);
+            chatList.set(index, contactsModel);
+            Stash.put(Constants.USERS, chatList);
+            MessageModel messageModel = new MessageModel(UUID.randomUUID().toString(), contactsModel.id, message, imageUri.toString(), new Date().getTime(), isMedia, false);
+            list.add(messageModel);
+            Stash.put(contactsModel.id, list);
+            adapter.notifyItemInserted(list.size() - 1);
+            binding.chatRC.scrollToPosition(list.size() - 1);
+        }
+    }
+
+    private void send(String message, boolean isMedia, String last) {
+        if (!message.isEmpty() || isMedia) {
+            binding.message.setText("");
+            contactsModel.lastMessage = last;
+            contactsModel.time = new Date().getTime();
+            ArrayList<ContactsModel> chatList = Stash.getArrayList(Constants.USERS, ContactsModel.class);
+            int index = retrieveIndex(chatList);
+            chatList.set(index, contactsModel);
+            Stash.put(Constants.USERS, chatList);
+            UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
+            MessageModel messageModel = new MessageModel(UUID.randomUUID().toString(), userModel.number, message, imageUri.toString(), new Date().getTime(), isMedia, false);
+            list.add(messageModel);
+            Stash.put(contactsModel.id, list);
+            adapter.notifyItemInserted(list.size() - 1);
+            binding.chatRC.scrollToPosition(list.size() - 1);
+        }
+    }
+    private int retrieveIndex(ArrayList<ContactsModel> list) {
+        for (int i = 0; i < list.size(); i++) {
+            ContactsModel model = list.get(i);
+            if (model.id.equals(contactsModel.id)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 
     public void getList() {
         ArrayList<String> list = new ArrayList<>();
@@ -200,40 +344,45 @@ public class ChatActivity extends AppCompatActivity {
                 binding.galleryRC.setAdapter(adapter);
             }
         }
+    }
 
-
-//        Uri uri;
-//        Cursor cursor;
-//        int column_index_data, column_index_folder_name;
-//        ArrayList<String> listOfAllImages = new ArrayList<String>();
-//        String absolutePathOfImage = null;
-//        uri = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-//
-////        String[] projection = { MediaStore.MediaColumns.DATA,
-////                MediaStore.Images.Media.BUCKET_DISPLAY_NAME };
-//
-//        cursor = getContentResolver().query(uri, projection, null,
-//                null, null);
-//
-//        column_index_data = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-//        column_index_folder_name = cursor
-//                .getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
-//        while (cursor.moveToNext()) {
-//            absolutePathOfImage = cursor.getString(column_index_data);
-//
-//            listOfAllImages.add(absolutePathOfImage);
-//        }
-//        Log.d(TAG, "getList: " + listOfAllImages.size());
-//        GalleryAdapter adapter = new GalleryAdapter(ChatActivity.this, listOfAllImages, imagePick);
-//        binding.galleryRC.setAdapter(adapter);
-
+    Uri imageUri = Uri.EMPTY;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
+            imageUri = data.getData();
+            new MaterialAlertDialogBuilder(this)
+                    .setMessage("Send message to whom?")
+                    .setPositiveButton("Myself", (dialog, which) -> {
+                        dialog.dismiss();
+                        receive(binding.message.getText().toString(), true, "Photo");
+                        imageUri = Uri.EMPTY;
+                    }).setNegativeButton(contactsModel.name, (dialog, which) -> {
+                        dialog.dismiss();
+                        send(binding.message.getText().toString(), true, "Photo");
+                        imageUri = Uri.EMPTY;
+                    })
+                    .show();
+        }
     }
 
     private static final String TAG = "ChatActivity";
     ImagePick imagePick = new ImagePick() {
         @Override
         public void imagePick(String image) {
-
+            new MaterialAlertDialogBuilder(ChatActivity.this)
+                    .setMessage("Send message to whom?")
+                    .setPositiveButton("Myself", (dialog, which) -> {
+                        dialog.dismiss();
+                        imageUri = Uri.parse(image);
+                        receive(binding.message.getText().toString(), true, "Photo");
+                    }).setNegativeButton(contactsModel.name, (dialog, which) -> {
+                        dialog.dismiss();
+                        imageUri = Uri.parse(image);
+                        send(binding.message.getText().toString(), true, "Photo");
+                    })
+                    .show();
         }
     };
 
