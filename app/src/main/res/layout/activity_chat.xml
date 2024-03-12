@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".ChatActivity">
+    tools:context=".activities.ChatActivity">
 
     <LinearLayout
         android:id="@+id/toolbar"
@@ -62,7 +62,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_gravity="center"
-                android:src="@drawable/video" />
+                android:src="@drawable/video_camera" />
 
         </com.google.android.material.card.MaterialCardView>
 
@@ -184,12 +184,14 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="10dp"
+        android:background="@drawable/top_stroke"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
+            android:layout_marginTop="6dp"
             android:layout_marginHorizontal="10dp"
             android:orientation="horizontal">
 
@@ -277,8 +279,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
             android:id="@+id/galleryLayout"
+            android:visibility="gone"
             android:orientation="vertical">
 
             <androidx.recyclerview.widget.RecyclerView
@@ -316,8 +318,7 @@
                             android:layout_height="24dp"
                             android:src="@drawable/gallery"
                             android:layout_margin="10dp"
-                            android:padding="3dp"
-                            android:rotationY="180" />
+                            android:padding="3dp" />
 
                     </com.google.android.material.card.MaterialCardView>
 
@@ -348,7 +349,7 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/new_document"
+                            android:src="@drawable/file"
                             android:layout_margin="10dp"
                             android:padding="3dp" />
 
@@ -381,10 +382,9 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/user"
+                            android:src="@drawable/person"
                             android:layout_margin="10dp"
-                            android:padding="3dp"
-                            android:rotationY="180" />
+                            android:padding="3dp" />
 
                     </com.google.android.material.card.MaterialCardView>
 
@@ -415,10 +415,9 @@
                         <ImageView
                             android:layout_width="24dp"
                             android:layout_height="24dp"
-                            android:src="@drawable/gallery"
+                            android:src="@drawable/location"
                             android:layout_margin="10dp"
-                            android:padding="3dp"
-                            android:rotationY="180" />
+                            android:padding="3dp" />
 
                     </com.google.android.material.card.MaterialCardView>
 

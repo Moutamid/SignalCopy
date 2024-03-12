@@ -22,16 +22,13 @@ import android.view.ViewGroup;
 import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
 import com.moutamid.signalcopy.Constants;
-import com.moutamid.signalcopy.MainActivity;
-import com.moutamid.signalcopy.R;
+import com.moutamid.signalcopy.activities.MainActivity;
 import com.moutamid.signalcopy.databinding.FragmentNameBinding;
 import com.moutamid.signalcopy.model.UserModel;
 
-import java.util.UUID;
-
 public class NameFragment extends Fragment {
     FragmentNameBinding binding;
-    Uri image;
+    Uri image = Uri.EMPTY;
     private static final String TAG = "NameFragment";
     private static final int PICK_IMAGE_REQUEST = 1001;
     public NameFragment() {

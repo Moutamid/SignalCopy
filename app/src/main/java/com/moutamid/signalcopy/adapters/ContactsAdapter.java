@@ -13,14 +13,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.avatarfirst.avatargenlib.AvatarGenerator;
 import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
-import com.moutamid.signalcopy.ChatActivity;
-import com.moutamid.signalcopy.MainActivity;
+import com.moutamid.signalcopy.activities.ChatActivity;
+import com.moutamid.signalcopy.Constants;
 import com.moutamid.signalcopy.R;
 import com.moutamid.signalcopy.model.ContactsModel;
-import com.moutamid.signalcopy.model.UserModel;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -49,7 +49,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
                         new AvatarGenerator.AvatarBuilder(context)
                                 .setLabel(model.name.trim().toUpperCase(Locale.ROOT))
                                 .setAvatarSize(70)
-                                .setBackgroundColor(R.color.pink)
+                                .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
                                 .setTextSize(13)
                                 .toCircle()
                                 .build()

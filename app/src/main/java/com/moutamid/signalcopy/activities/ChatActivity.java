@@ -1,4 +1,4 @@
-package com.moutamid.signalcopy;
+package com.moutamid.signalcopy.activities;
 
 import android.Manifest;
 import android.app.Dialog;
@@ -30,6 +30,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
+import com.moutamid.signalcopy.Constants;
+import com.moutamid.signalcopy.listeners.DeleteListener;
+import com.moutamid.signalcopy.listeners.ImagePick;
+import com.moutamid.signalcopy.R;
 import com.moutamid.signalcopy.adapters.GalleryAdapter;
 import com.moutamid.signalcopy.adapters.MessageAdapter;
 import com.moutamid.signalcopy.databinding.ActivityChatBinding;
@@ -41,6 +45,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 import java.util.UUID;
 
 public class ChatActivity extends AppCompatActivity {
@@ -68,7 +73,7 @@ public class ChatActivity extends AppCompatActivity {
                 .load(new AvatarGenerator.AvatarBuilder(this)
                         .setLabel(contactsModel.name.trim().toUpperCase(Locale.ROOT))
                         .setAvatarSize(70)
-                        .setBackgroundColor(R.color.pink)
+                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
                         .setTextSize(13)
                         .toCircle()
                         .build()
@@ -78,7 +83,7 @@ public class ChatActivity extends AppCompatActivity {
                 .load(new AvatarGenerator.AvatarBuilder(this)
                         .setLabel(contactsModel.name.trim().toUpperCase(Locale.ROOT))
                         .setAvatarSize(70)
-                        .setBackgroundColor(R.color.pink)
+                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
                         .setTextSize(13)
                         .toCircle()
                         .build()
@@ -88,8 +93,11 @@ public class ChatActivity extends AppCompatActivity {
 
         binding.add.setOnClickListener(v -> {
             if (Constants.checkPermission(this)) {
-                getList();
-                binding.galleryLayout.setVisibility(View.VISIBLE);
+                int vis = binding.galleryLayout.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE;
+                if (vis == View.VISIBLE){
+                    getList();
+                }
+                binding.galleryLayout.setVisibility(vis);
             } else {
                 String[] permissions;
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -168,8 +176,11 @@ public class ChatActivity extends AppCompatActivity {
         binding.send.setOnClickListener(v -> {
             if (!isSend) {
                 if (Constants.checkPermission(this)) {
-                    getList();
-                    binding.galleryLayout.setVisibility(View.VISIBLE);
+                    int vis = binding.galleryLayout.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE;
+                    if (vis == View.VISIBLE){
+                        getList();
+                    }
+                    binding.galleryLayout.setVisibility(vis);
                 } else {
                     String[] permissions;
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -190,16 +201,20 @@ public class ChatActivity extends AppCompatActivity {
                     ActivityCompat.requestPermissions(this, permissions, 222);
                 }
             } else {
-                new MaterialAlertDialogBuilder(this)
-                        .setMessage("Send message to whom?")
-                        .setPositiveButton("Myself", (dialog, which) -> {
-                            dialog.dismiss();
-                            receive(binding.message.getText().toString() + "\t\t", false, binding.message.getText().toString());
-                        }).setNegativeButton(contactsModel.name, (dialog, which) -> {
-                            dialog.dismiss();
-                            send(binding.message.getText().toString() + "\t\t\t", false, binding.message.getText().toString());
-                        })
-                        .show();
+                if (Stash.getBoolean(Constants.EDIT_MODE, false)){
+                    new MaterialAlertDialogBuilder(this)
+                            .setMessage("Send message to whom?")
+                            .setPositiveButton("Myself", (dialog, which) -> {
+                                dialog.dismiss();
+                                receive(binding.message.getText().toString() + "\t\t", false, binding.message.getText().toString());
+                            }).setNegativeButton(contactsModel.name, (dialog, which) -> {
+                                dialog.dismiss();
+                                send(binding.message.getText().toString() + "\t\t\t", false, binding.message.getText().toString());
+                            })
+                            .show();
+                } else {
+                    send(binding.message.getText().toString() + "\t\t\t", false, binding.message.getText().toString());
+                }
             }
         });
     }
@@ -419,18 +434,23 @@ public class ChatActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             imageUri = data.getData();
-            new MaterialAlertDialogBuilder(this)
-                    .setMessage("Send message to whom?")
-                    .setPositiveButton("Myself", (dialog, which) -> {
-                        dialog.dismiss();
-                        receive(binding.message.getText().toString(), true, "Photo");
-                        imageUri = Uri.EMPTY;
-                    }).setNegativeButton(contactsModel.name, (dialog, which) -> {
-                        dialog.dismiss();
-                        send(binding.message.getText().toString(), true, "Photo");
-                        imageUri = Uri.EMPTY;
-                    })
-                    .show();
+            if (Stash.getBoolean(Constants.EDIT_MODE, false)) {
+                new MaterialAlertDialogBuilder(this)
+                        .setMessage("Send message to whom?")
+                        .setPositiveButton("Myself", (dialog, which) -> {
+                            dialog.dismiss();
+                            receive(binding.message.getText().toString(), true, "Photo");
+                            imageUri = Uri.EMPTY;
+                        }).setNegativeButton(contactsModel.name, (dialog, which) -> {
+                            dialog.dismiss();
+                            send(binding.message.getText().toString(), true, "Photo");
+                            imageUri = Uri.EMPTY;
+                        })
+                        .show();
+            } else {
+                send(binding.message.getText().toString(), true, "Photo");
+                imageUri = Uri.EMPTY;
+            }
         }
     }
 
@@ -438,18 +458,23 @@ public class ChatActivity extends AppCompatActivity {
     ImagePick imagePick = new ImagePick() {
         @Override
         public void imagePick(String image) {
-            new MaterialAlertDialogBuilder(ChatActivity.this)
-                    .setMessage("Send message to whom?")
-                    .setPositiveButton("Myself", (dialog, which) -> {
-                        dialog.dismiss();
-                        imageUri = Uri.parse(image);
-                        receive(binding.message.getText().toString(), true, "Photo");
-                    }).setNegativeButton(contactsModel.name, (dialog, which) -> {
-                        dialog.dismiss();
-                        imageUri = Uri.parse(image);
-                        send(binding.message.getText().toString(), true, "Photo");
-                    })
-                    .show();
+            if (Stash.getBoolean(Constants.EDIT_MODE, false)) {
+                new MaterialAlertDialogBuilder(ChatActivity.this)
+                        .setMessage("Send message to whom?")
+                        .setPositiveButton("Myself", (dialog, which) -> {
+                            dialog.dismiss();
+                            imageUri = Uri.parse(image);
+                            receive(binding.message.getText().toString(), true, "Photo");
+                        }).setNegativeButton(contactsModel.name, (dialog, which) -> {
+                            dialog.dismiss();
+                            imageUri = Uri.parse(image);
+                            send(binding.message.getText().toString(), true, "Photo");
+                        })
+                        .show();
+            } else {
+                imageUri = Uri.parse(image);
+                send(binding.message.getText().toString(), true, "Photo");
+            }
         }
     };
 

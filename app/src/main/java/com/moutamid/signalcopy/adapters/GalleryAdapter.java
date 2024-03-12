@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.moutamid.signalcopy.ImagePick;
+import com.moutamid.signalcopy.listeners.ImagePick;
 import com.moutamid.signalcopy.R;
 
 import java.util.ArrayList;

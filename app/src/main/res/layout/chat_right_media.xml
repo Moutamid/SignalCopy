@@ -30,7 +30,7 @@
                     android:id="@+id/photo"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@color/bg"
+                    android:src="@color/active"
                     android:scaleType="centerCrop" />
 
             </androidx.cardview.widget.CardView>
@@ -64,14 +64,12 @@
                         android:textColor="@color/white" />
 
                     <ImageView
-                        android:id="@+id/check"
-                        android:layout_width="15dp"
-                        android:layout_height="15dp"
-                        android:layout_marginStart="3dp"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="6dp"
                         app:tint="@color/white"
-                        android:visibility="gone"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="@+id/message" />
+                        android:src="@drawable/tick" />
+
 
                 </LinearLayout>
 

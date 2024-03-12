@@ -1,26 +1,25 @@
-package com.moutamid.signalcopy;
+package com.moutamid.signalcopy.activities;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 
 import com.avatarfirst.avatargenlib.AvatarGenerator;
 import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
+import com.moutamid.signalcopy.Constants;
+import com.moutamid.signalcopy.R;
 import com.moutamid.signalcopy.databinding.ActivityMainBinding;
 import com.moutamid.signalcopy.fragments.CallFragment;
 import com.moutamid.signalcopy.fragments.ChatFragment;
-import com.moutamid.signalcopy.fragments.NumberFragment;
 import com.moutamid.signalcopy.fragments.StoryFragment;
 import com.moutamid.signalcopy.model.UserModel;
 
 import java.util.Locale;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
@@ -36,15 +35,19 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "onCreate: " + userModel);
 
-//        Glide.with(this).load(userModel.getImage()).placeholder(
-//                new AvatarGenerator.AvatarBuilder(MainActivity.this)
-//                        .setLabel(userModel.getName().trim().toUpperCase(Locale.ROOT))
-//                        .setAvatarSize(70)
-//                        .setBackgroundColor(R.color.pink)
-//                        .setTextSize(13)
-//                        .toCircle()
-//                        .build()
-//        ).into(binding.profile);
+        Glide.with(this).load(userModel.image).placeholder(
+                new AvatarGenerator.AvatarBuilder(MainActivity.this)
+                        .setLabel(userModel.name.trim().toUpperCase(Locale.ROOT))
+                        .setAvatarSize(70)
+                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
+                        .setTextSize(13)
+                        .toCircle()
+                        .build()
+        ).into(binding.profile);
+
+        binding.profile.setOnClickListener(v -> {
+            startActivity(new Intent(this, SettingActivity.class));
+        });
 
         binding.bottomNav.setItemActiveIndicatorColor(ColorStateList.valueOf(getResources().getColor(R.color.active)));
         binding.bottomNav.setOnNavigationItemSelectedListener(item -> {

@@ -36,27 +36,43 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingStart="12dp"
-            android:paddingTop="0dp"
+            android:paddingTop="10dp"
             android:paddingBottom="20dp"
             android:text="hi wassup how are you doing food"
             android:textColor="@android:color/white" />
 
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/time"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="22dp"
+        android:orientation="horizontal"
+        android:paddingVertical="3dp"
+        android:gravity="center_vertical"
         android:layout_marginBottom="3dp"
-        android:maxLines="1"
-        android:text="4:42 pm"
-        android:textAllCaps="true"
-        android:textColor="@color/white"
-        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/layout" />
+        app:layout_constraintEnd_toEndOf="@+id/layout"
+        android:paddingHorizontal="8dp">
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="4:42 pm"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textSize="12sp" />
+
+        <ImageView
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginHorizontal="6dp"
+            app:tint="@color/bg"
+            android:src="@drawable/tick" />
+
+    </LinearLayout>
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

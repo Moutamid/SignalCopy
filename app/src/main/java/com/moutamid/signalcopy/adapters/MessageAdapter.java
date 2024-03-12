@@ -11,8 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.view.menu.MenuBuilder;
-import androidx.appcompat.view.menu.MenuPopupHelper;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
@@ -22,7 +20,7 @@ import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
 import com.google.android.material.card.MaterialCardView;
 import com.moutamid.signalcopy.Constants;
-import com.moutamid.signalcopy.DeleteListener;
+import com.moutamid.signalcopy.listeners.DeleteListener;
 import com.moutamid.signalcopy.R;
 import com.moutamid.signalcopy.model.MessageModel;
 import com.moutamid.signalcopy.model.UserModel;

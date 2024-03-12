@@ -19,4 +19,6 @@
     <color name="trans">#00009BD9</color>
     <color name="chat">#325DF3</color>
     <color name="chat_income">#E7EAF3</color>
+    <color name="border">#E6E7EA</color>
+    <color name="grey">#e5e5e5</color>
 </resources>

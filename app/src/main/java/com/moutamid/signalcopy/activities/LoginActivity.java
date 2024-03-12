@@ -1,4 +1,4 @@
-package com.moutamid.signalcopy;
+package com.moutamid.signalcopy.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.fxn.stash.Stash;
+import com.moutamid.signalcopy.Constants;
+import com.moutamid.signalcopy.R;
 import com.moutamid.signalcopy.databinding.ActivityLoginBinding;
 import com.moutamid.signalcopy.fragments.NumberFragment;
 import com.moutamid.signalcopy.model.UserModel;

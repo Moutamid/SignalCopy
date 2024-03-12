@@ -21,6 +21,8 @@ import java.net.URL;
 public class Constants {
     public static final String STASH_USER = "STASH_USER";
     public static final String USERS = "USERS";
+    public static final String EDIT_MODE = "EDIT_MODE";
+    public static final int[] COLORS = {R.color.pink, R.color.blue, R.color.chat, R.color.chat_income};
 
     public static boolean checkPermission(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
