@@ -382,6 +382,7 @@ public class ChatActivity extends AppCompatActivity {
         adapter = new MessageAdapter(this, list, contactsModel.name, deleteListener, binding.chatRC);
         binding.chatRC.setAdapter(adapter);
         binding.chatRC.scrollToPosition(list.size() - 1);
+        binding.scrollView.fullScroll(View.FOCUS_DOWN);
     }
 
     private void receive(String message, boolean isMedia, String last) {
@@ -399,6 +400,7 @@ public class ChatActivity extends AppCompatActivity {
             Stash.put(contactsModel.id, list);
             adapter.notifyItemInserted(list.size() - 1);
             binding.scrollView.fullScroll(View.FOCUS_DOWN);
+            binding.message.requestFocus();
         }
     }
 
@@ -418,6 +420,7 @@ public class ChatActivity extends AppCompatActivity {
             Stash.put(contactsModel.id, list);
             adapter.notifyItemInserted(list.size() - 1);
             binding.scrollView.fullScroll(View.FOCUS_DOWN);
+            binding.message.requestFocus();
         }
     }
 
