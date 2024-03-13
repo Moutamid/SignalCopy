@@ -21,4 +21,7 @@
     <color name="chat_income">#E7EAF3</color>
     <color name="border">#E6E7EA</color>
     <color name="grey">#e5e5e5</color>
+    <color name="background">#191B18</color>
+    <color name="icons_background">#2E2F32</color>
+    <color name="icons_background_trans">#B32E2F32</color>
 </resources>

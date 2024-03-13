@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.moutamid.signalcopy.Constants;
 import com.moutamid.signalcopy.listeners.DeleteListener;
@@ -72,19 +74,6 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public void onBindViewHolder(@NonNull MessageVH holder, int position) {
         MessageModel model = list.get(holder.getAbsoluteAdapterPosition());
-//        if (!model.isDate()){
-////            ChatModel chatModel = (ChatModel) Stash.getObject(Constants.PASS_CHAT, ChatModel.class);
-////            String status = chatModel.getStatus();
-////            if (status.equalsIgnoreCase("online")) {
-////                holder.check.setImageResource(R.drawable.check);
-////            } else if (status.equalsIgnoreCase("typing...")) {
-////                holder.check.setImageResource(R.drawable.check);
-////            } else if (status.startsWith("last seen")) {
-////                holder.check.setImageResource(R.drawable.round_check_24);
-////            } else {
-////                holder.check.setImageResource(R.drawable.round_check_24);
-////            }
-//        }
 
         holder.message.setText(model.getMessage() + "\t\t\t");
         String time = new SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(model.getTimestamp());
@@ -97,23 +86,21 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         holder.itemView.setOnLongClickListener(v -> {
 
-            PopupMenu popupMenu = new PopupMenu(context, v);
-            popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
-            popupMenu.setOnMenuItemClickListener(item -> {
-                int itemId = item.getItemId();
-                if (itemId == R.id.edit) {
-                    deleteListener.onEdit(list.get(holder.getAbsoluteAdapterPosition()));
-                    return true;
-                } else if (itemId == R.id.delete) {
-                    deleteListener.onHoldClick(list.get(holder.getAbsoluteAdapterPosition()));
-                    return true;
-                }
-                return false;
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View customView = inflater.inflate(R.layout.buttons_messages, null);
+            PopupWindow popupWindow = new PopupWindow(customView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+            popupWindow.showAsDropDown(v);
+            MaterialButton edit = customView.findViewById(R.id.edit);
+            MaterialButton delete = customView.findViewById(R.id.delete);
+
+            edit.setOnClickListener(v1 -> {
+                popupWindow.dismiss();
+                deleteListener.onEdit(list.get(holder.getAbsoluteAdapterPosition()));
             });
-            popupMenu.show();
-//            MenuPopupHelper menuHelper = new MenuPopupHelper(context, (MenuBuilder) popupMenu.getMenu(),v);
-//            menuHelper.setForceShowIcon(true);
-//            menuHelper.show();
+            delete.setOnClickListener(v1 -> {
+                popupWindow.dismiss();
+                deleteListener.onHoldClick(list.get(holder.getAbsoluteAdapterPosition()));
+            });
             return true;
         });
 

@@ -15,6 +15,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -26,17 +28,18 @@ import com.avatarfirst.avatargenlib.AvatarGenerator;
 import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.android.material.timepicker.MaterialTimePicker;
 import com.google.android.material.timepicker.TimeFormat;
 import com.moutamid.signalcopy.Constants;
-import com.moutamid.signalcopy.listeners.DeleteListener;
-import com.moutamid.signalcopy.listeners.ImagePick;
 import com.moutamid.signalcopy.R;
 import com.moutamid.signalcopy.adapters.GalleryAdapter;
 import com.moutamid.signalcopy.adapters.MessageAdapter;
 import com.moutamid.signalcopy.databinding.ActivityChatBinding;
+import com.moutamid.signalcopy.listeners.DeleteListener;
+import com.moutamid.signalcopy.listeners.ImagePick;
 import com.moutamid.signalcopy.model.ContactsModel;
 import com.moutamid.signalcopy.model.MessageModel;
 import com.moutamid.signalcopy.model.UserModel;
@@ -94,7 +97,7 @@ public class ChatActivity extends AppCompatActivity {
         binding.add.setOnClickListener(v -> {
             if (Constants.checkPermission(this)) {
                 int vis = binding.galleryLayout.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE;
-                if (vis == View.VISIBLE){
+                if (vis == View.VISIBLE) {
                     getList();
                 }
                 binding.galleryLayout.setVisibility(vis);
@@ -177,7 +180,7 @@ public class ChatActivity extends AppCompatActivity {
             if (!isSend) {
                 if (Constants.checkPermission(this)) {
                     int vis = binding.galleryLayout.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE;
-                    if (vis == View.VISIBLE){
+                    if (vis == View.VISIBLE) {
                         getList();
                     }
                     binding.galleryLayout.setVisibility(vis);
@@ -201,7 +204,7 @@ public class ChatActivity extends AppCompatActivity {
                     ActivityCompat.requestPermissions(this, permissions, 222);
                 }
             } else {
-                if (Stash.getBoolean(Constants.EDIT_MODE, false)){
+                if (Stash.getBoolean(Constants.EDIT_MODE, false)) {
                     new MaterialAlertDialogBuilder(this)
                             .setMessage("Send message to whom?")
                             .setPositiveButton("Myself", (dialog, which) -> {
@@ -221,6 +224,7 @@ public class ChatActivity extends AppCompatActivity {
 
     ArrayList<MessageModel> list;
     MessageAdapter adapter;
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -287,7 +291,7 @@ public class ChatActivity extends AppCompatActivity {
                         .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
                         .setPositiveButtonText("Set Time")
                         .build();
-                picker.show(ChatActivity.this.getSupportFragmentManager(),  "");
+                picker.show(ChatActivity.this.getSupportFragmentManager(), "");
                 picker.addOnPositiveButtonClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -315,7 +319,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void editMessage(MessageModel messageModel, long time, String msg) {
         int i = retrievePosition(list, messageModel.getId());
-        if (i != -1){
+        if (i != -1) {
             list.get(i).setMessage(msg);
             list.get(i).setTimestamp(time);
             adapter.notifyItemRemoved(i);
@@ -337,7 +341,7 @@ public class ChatActivity extends AppCompatActivity {
         int i = retrievePosition(list, messageModel.getId());
         Log.d(TAG, "deleteMessage: " + messageModel.getId());
         Log.d(TAG, "deleteMessage: " + i);
-        if (i != -1){
+        if (i != -1) {
             list.remove(i);
             adapter.notifyItemRemoved(i);
             Stash.put(contactsModel.id, list);
@@ -392,6 +396,7 @@ public class ChatActivity extends AppCompatActivity {
             binding.chatRC.scrollToPosition(list.size() - 1);
         }
     }
+
     private int retrieveIndex(ArrayList<ContactsModel> list) {
         for (int i = 0; i < list.size(); i++) {
             ContactsModel model = list.get(i);
@@ -429,53 +434,60 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     Uri imageUri = Uri.EMPTY;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null) {
             imageUri = data.getData();
-            if (Stash.getBoolean(Constants.EDIT_MODE, false)) {
-                new MaterialAlertDialogBuilder(this)
-                        .setMessage("Send message to whom?")
-                        .setPositiveButton("Myself", (dialog, which) -> {
-                            dialog.dismiss();
-                            receive(binding.message.getText().toString(), true, "Photo");
-                            imageUri = Uri.EMPTY;
-                        }).setNegativeButton(contactsModel.name, (dialog, which) -> {
-                            dialog.dismiss();
-                            send(binding.message.getText().toString(), true, "Photo");
-                            imageUri = Uri.EMPTY;
-                        })
-                        .show();
-            } else {
-                send(binding.message.getText().toString(), true, "Photo");
-                imageUri = Uri.EMPTY;
-            }
+            showImagePick(imageUri.toString());
         }
     }
 
-    private static final String TAG = "ChatActivity";
-    ImagePick imagePick = new ImagePick() {
-        @Override
-        public void imagePick(String image) {
+    private void showImagePick(String image) {
+
+        Dialog imagePicker = new Dialog(this);
+        imagePicker.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        imagePicker.setContentView(R.layout.image_pick_layout);
+        imagePicker.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        imagePicker.setCancelable(true);
+        imagePicker.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
+        imagePicker.show();
+
+        TextView name = imagePicker.findViewById(R.id.name);
+        ImageView imageView = imagePicker.findViewById(R.id.image);
+        MaterialCardView send = imagePicker.findViewById(R.id.send);
+        EditText message = imagePicker.findViewById(R.id.message);
+
+        Glide.with(this).load(image).into(imageView);
+        name.setText(contactsModel.name);
+        message.setText(binding.message.getText().toString());
+
+        send.setOnClickListener(v -> {
+            imagePicker.dismiss();
             if (Stash.getBoolean(Constants.EDIT_MODE, false)) {
                 new MaterialAlertDialogBuilder(ChatActivity.this)
                         .setMessage("Send message to whom?")
                         .setPositiveButton("Myself", (dialog, which) -> {
                             dialog.dismiss();
                             imageUri = Uri.parse(image);
-                            receive(binding.message.getText().toString(), true, "Photo");
+                            receive(message.getText().toString(), true, "Photo");
+                            imageUri = Uri.EMPTY;
                         }).setNegativeButton(contactsModel.name, (dialog, which) -> {
                             dialog.dismiss();
                             imageUri = Uri.parse(image);
-                            send(binding.message.getText().toString(), true, "Photo");
+                            send(message.getText().toString(), true, "Photo");
+                            imageUri = Uri.EMPTY;
                         })
                         .show();
             } else {
                 imageUri = Uri.parse(image);
-                send(binding.message.getText().toString(), true, "Photo");
+                send(message.getText().toString(), true, "Photo");
+                imageUri = Uri.EMPTY;
             }
-        }
-    };
+        });
+    }
 
+    private static final String TAG = "ChatActivity";
+    ImagePick imagePick = image -> showImagePick(image);
 }

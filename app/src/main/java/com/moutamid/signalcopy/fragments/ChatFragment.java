@@ -1,12 +1,14 @@
 package com.moutamid.signalcopy.fragments;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
+import android.provider.MediaStore;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +16,11 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.avatarfirst.avatargenlib.AvatarGenerator;
 import com.bumptech.glide.Glide;
@@ -26,14 +33,17 @@ import com.moutamid.signalcopy.Constants;
 import com.moutamid.signalcopy.R;
 import com.moutamid.signalcopy.adapters.ContactsAdapter;
 import com.moutamid.signalcopy.databinding.FragmentChatBinding;
+import com.moutamid.signalcopy.listeners.ContactListener;
 import com.moutamid.signalcopy.model.ContactsModel;
-import com.moutamid.signalcopy.model.UserModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 import java.util.UUID;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatFragment extends Fragment {
     FragmentChatBinding binding;
@@ -61,16 +71,35 @@ public class ChatFragment extends Fragment {
 
     private void getList() {
         ArrayList<ContactsModel> list = Stash.getArrayList(Constants.USERS, ContactsModel.class);
-        ContactsAdapter adapter = new ContactsAdapter(requireContext(), list);
+        ContactsAdapter adapter = new ContactsAdapter(requireContext(), list, contactListener);
         binding.chatRC.setAdapter(adapter);
 
-        if (list.size() > 0){
+        if (list.size() > 0) {
             binding.noLayout.setVisibility(View.GONE);
+        } else {
+            binding.noLayout.setVisibility(View.VISIBLE);
         }
-
     }
 
-    private void showAddContact() {
+    ContactListener contactListener = new ContactListener() {
+        @Override
+        public void onCLick(ContactsModel model) {
+            updateContact(model);
+        }
+
+        @Override
+        public void onDelete(ContactsModel model, int pos) {
+            ArrayList<ContactsModel> list = Stash.getArrayList(Constants.USERS, ContactsModel.class);
+            list.remove(pos);
+            Stash.put(Constants.USERS, list);
+            getList();
+        }
+    };
+
+    Uri image = Uri.EMPTY;
+    CircleImageView profile2;
+
+    private void updateContact(ContactsModel model) {
         Dialog dialog = new Dialog(requireContext());
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.add_user);
@@ -79,10 +108,68 @@ public class ChatFragment extends Fragment {
 
         MaterialButton save = dialog.findViewById(R.id.save);
         MaterialButton time = dialog.findViewById(R.id.time);
+        MaterialButton add = dialog.findViewById(R.id.add);
+        MaterialButton delete = dialog.findViewById(R.id.delete);
         TextInputLayout name = dialog.findViewById(R.id.name);
         TextInputLayout number = dialog.findViewById(R.id.number);
         TextInputLayout lastMessage = dialog.findViewById(R.id.lastMessage);
         TextView pikedTime = dialog.findViewById(R.id.pikedTime);
+        profile2 = dialog.findViewById(R.id.profile2);
+
+        name.getEditText().setText(model.name);
+        number.getEditText().setText(model.number);
+
+        Glide.with(requireContext()).load(model.image).placeholder(
+                new AvatarGenerator.AvatarBuilder(requireContext())
+                        .setLabel(model.name.trim().toUpperCase(Locale.ROOT))
+                        .setAvatarSize(70)
+                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
+                        .setTextSize(13)
+                        .toCircle()
+                        .build()
+        ).into(profile2);
+
+        image = Uri.parse(model.image);
+
+        add.setOnClickListener(v -> {
+            if (Constants.checkPermission(requireContext())) {
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(Intent.createChooser(intent, "Pick Image"), PICK_IMAGE_REQUEST);
+            } else {
+                String[] permissions;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    permissions = new String[]{
+                            Manifest.permission.READ_MEDIA_IMAGES,
+                            Manifest.permission.READ_MEDIA_IMAGES,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                    };
+                    shouldShowRequestPermissionRationale(permissions[0]);
+                    shouldShowRequestPermissionRationale(permissions[1]);
+                    shouldShowRequestPermissionRationale(permissions[2]);
+                } else {
+                    permissions = new String[]{
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                    };
+                    shouldShowRequestPermissionRationale(permissions[0]);
+                }
+                ActivityCompat.requestPermissions(requireActivity(), permissions, 222);
+            }
+        });
+
+        delete.setOnClickListener(v -> {
+            image = Uri.EMPTY;
+            Glide.with(requireContext()).load(image).placeholder(
+                    new AvatarGenerator.AvatarBuilder(requireContext())
+                            .setLabel(name.getEditText().getText().toString().trim().toUpperCase(Locale.ROOT))
+                            .setAvatarSize(70)
+                            .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
+                            .setTextSize(13)
+                            .toCircle()
+                            .build()
+            ).into(profile2);
+        });
+
+
         final String[] t = {""};
         final long[] selectedTimeInMillis = new long[1];
         selectedTimeInMillis[0] = new Date().getTime();
@@ -97,7 +184,7 @@ public class ChatFragment extends Fragment {
                     .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
                     .setPositiveButtonText("Set Time")
                     .build();
-            picker.show(requireActivity().getSupportFragmentManager(),  "");
+            picker.show(requireActivity().getSupportFragmentManager(), "");
             picker.addOnPositiveButtonClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -111,10 +198,129 @@ public class ChatFragment extends Fragment {
         });
 
         save.setOnClickListener(v -> {
-            if (name.getEditText().getText().toString().isEmpty() || t[0].isEmpty()){
+            if (name.getEditText().getText().toString().isEmpty() || t[0].isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill all details", Toast.LENGTH_SHORT).show();
             } else {
-                ContactsModel model = new ContactsModel(UUID.randomUUID().toString(), name.getEditText().getText().toString(), lastMessage.getEditText().getText().toString(), number.getEditText().getText().toString(), selectedTimeInMillis[0]);
+                ArrayList<ContactsModel> list = Stash.getArrayList(Constants.USERS, ContactsModel.class);
+                int index = retrieveIndex(model, list);
+                if (index != -1){
+                    list.get(index).image = image.toString();
+                    list.get(index).name = name.getEditText().getText().toString();
+                    list.get(index).lastMessage = lastMessage.getEditText().getText().toString();
+                    list.get(index).number = number.getEditText().getText().toString();
+                    list.get(index).time = selectedTimeInMillis[0];
+                }
+
+                Stash.put(Constants.USERS, list);
+                getList();
+                dialog.dismiss();
+            }
+        });
+
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setGravity(Gravity.CENTER);
+        dialog.show();
+    }
+
+    private int retrieveIndex(ContactsModel model, ArrayList<ContactsModel> list) {
+        for (int i = 0; i < list.size(); i++) {
+            ContactsModel contactsModel = list.get(i);
+            if (contactsModel.id.equals(model.id)){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static final int PICK_IMAGE_REQUEST = 1001;
+
+    private void showAddContact() {
+        Dialog dialog = new Dialog(requireContext());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.add_user);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.setCancelable(true);
+
+        MaterialButton save = dialog.findViewById(R.id.save);
+        MaterialButton time = dialog.findViewById(R.id.time);
+        MaterialButton add = dialog.findViewById(R.id.add);
+        MaterialButton delete = dialog.findViewById(R.id.delete);
+        TextInputLayout name = dialog.findViewById(R.id.name);
+        TextInputLayout number = dialog.findViewById(R.id.number);
+        TextInputLayout lastMessage = dialog.findViewById(R.id.lastMessage);
+        TextView pikedTime = dialog.findViewById(R.id.pikedTime);
+        profile2 = dialog.findViewById(R.id.profile2);
+
+        final String[] t = {""};
+        final long[] selectedTimeInMillis = new long[1];
+        selectedTimeInMillis[0] = new Date().getTime();
+        String s = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(selectedTimeInMillis[0]);
+        pikedTime.setText(s);
+        t[0] = s;
+        time.setOnClickListener(v -> {
+            MaterialTimePicker picker = new MaterialTimePicker.Builder()
+                    .setTimeFormat(TimeFormat.CLOCK_24H)
+                    .setHour(12)
+                    .setMinute(0)
+                    .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
+                    .setPositiveButtonText("Set Time")
+                    .build();
+            picker.show(requireActivity().getSupportFragmentManager(), "");
+            picker.addOnPositiveButtonClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int selectedHour = picker.getHour();
+                    int selectedMinute = picker.getMinute();
+                    selectedTimeInMillis[0] = convertToMilliseconds(selectedHour, selectedMinute);
+                    t[0] = selectedHour + ":" + selectedMinute;
+                    pikedTime.setText(t[0]);
+                }
+            });
+        });
+
+        delete.setOnClickListener(v -> {
+            image = Uri.EMPTY;
+            Glide.with(requireContext()).load(image).placeholder(
+                    new AvatarGenerator.AvatarBuilder(requireContext())
+                            .setLabel(name.getEditText().getText().toString().trim().toUpperCase(Locale.ROOT))
+                            .setAvatarSize(70)
+                            .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
+                            .setTextSize(13)
+                            .toCircle()
+                            .build()
+            ).into(profile2);
+        });
+
+        add.setOnClickListener(v -> {
+            if (Constants.checkPermission(requireContext())) {
+                Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(Intent.createChooser(intent, "Pick Image"), PICK_IMAGE_REQUEST);
+            } else {
+                String[] permissions;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    permissions = new String[]{
+                            Manifest.permission.READ_MEDIA_IMAGES,
+                            Manifest.permission.READ_MEDIA_IMAGES,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                    };
+                    shouldShowRequestPermissionRationale(permissions[0]);
+                    shouldShowRequestPermissionRationale(permissions[1]);
+                    shouldShowRequestPermissionRationale(permissions[2]);
+                } else {
+                    permissions = new String[]{
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                    };
+                    shouldShowRequestPermissionRationale(permissions[0]);
+                }
+                ActivityCompat.requestPermissions(requireActivity(), permissions, 222);
+            }
+        });
+
+        save.setOnClickListener(v -> {
+            if (name.getEditText().getText().toString().isEmpty() || t[0].isEmpty()) {
+                Toast.makeText(requireContext(), "Please fill all details", Toast.LENGTH_SHORT).show();
+            } else {
+                ContactsModel model = new ContactsModel(UUID.randomUUID().toString(), name.getEditText().getText().toString(), image.toString(), lastMessage.getEditText().getText().toString(), number.getEditText().getText().toString(), selectedTimeInMillis[0]);
                 ArrayList<ContactsModel> list = Stash.getArrayList(Constants.USERS, ContactsModel.class);
                 list.add(model);
                 Stash.put(Constants.USERS, list);
@@ -132,4 +338,12 @@ public class ChatFragment extends Fragment {
         return (hour * 60L + minute) * 60L * 1000L;
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
+            image = data.getData();
+            Glide.with(this).load(image).into(profile2);
+        }
+    }
 }

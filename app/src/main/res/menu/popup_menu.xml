@@ -27,11 +27,7 @@
         android:iconTint="@color/black"
         app:showAsAction="always"
         android:title="Select" />
-<!--    <item-->
-<!--        android:icon="@drawable/trash"-->
-<!--        android:iconTint="@color/black"-->
-<!--        app:showAsAction="always"-->
-<!--        android:title="Info" />-->
+
     <item
         android:id="@+id/delete"
         android:icon="@drawable/trash"
