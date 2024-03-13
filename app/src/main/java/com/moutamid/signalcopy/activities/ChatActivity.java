@@ -56,7 +56,13 @@ public class ChatActivity extends AppCompatActivity {
     ActivityChatBinding binding;
     ContactsModel contactsModel;
     boolean isSend = false;
-
+    private String getShortenedText(String text, int limit) {
+        if (text.length() <= limit) {
+            return text;
+        } else {
+            return text.substring(0, limit) + "...";
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +71,7 @@ public class ChatActivity extends AppCompatActivity {
 
         contactsModel = (ContactsModel) Stash.getObject("PASS", ContactsModel.class);
 
-        binding.name.setText(contactsModel.name);
+        binding.name.setText(getShortenedText(contactsModel.name, 10));
         binding.name2.setText(contactsModel.name);
         binding.number.setText(contactsModel.number);
 
