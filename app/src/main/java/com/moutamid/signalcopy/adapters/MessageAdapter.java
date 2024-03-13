@@ -12,7 +12,6 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -82,28 +81,35 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         if (model.isMedia()){
             Glide.with(context).load(model.getImage()).placeholder(R.color.black).into(holder.imageView);
             holder.imageView.setOnClickListener(v -> openViewer(holder.getAbsoluteAdapterPosition()));
+            holder.imageView.setOnLongClickListener(v -> {
+                showDialog(list.get(holder.getAbsoluteAdapterPosition()), v);
+                return true;
+            });
         }
 
         holder.itemView.setOnLongClickListener(v -> {
-
-            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View customView = inflater.inflate(R.layout.buttons_messages, null);
-            PopupWindow popupWindow = new PopupWindow(customView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-            popupWindow.showAsDropDown(v);
-            MaterialButton edit = customView.findViewById(R.id.edit);
-            MaterialButton delete = customView.findViewById(R.id.delete);
-
-            edit.setOnClickListener(v1 -> {
-                popupWindow.dismiss();
-                deleteListener.onEdit(list.get(holder.getAbsoluteAdapterPosition()));
-            });
-            delete.setOnClickListener(v1 -> {
-                popupWindow.dismiss();
-                deleteListener.onHoldClick(list.get(holder.getAbsoluteAdapterPosition()));
-            });
+            showDialog(list.get(holder.getAbsoluteAdapterPosition()), v);
             return true;
         });
 
+    }
+
+    private void showDialog(MessageModel messageModel, View v) {
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View customView = inflater.inflate(R.layout.buttons_messages, null);
+        PopupWindow popupWindow = new PopupWindow(customView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        popupWindow.showAsDropDown(v);
+        MaterialButton edit = customView.findViewById(R.id.edit);
+        MaterialButton delete = customView.findViewById(R.id.delete);
+
+        edit.setOnClickListener(v1 -> {
+            popupWindow.dismiss();
+            deleteListener.onEdit(messageModel);
+        });
+        delete.setOnClickListener(v1 -> {
+            popupWindow.dismiss();
+            deleteListener.onHoldClick(messageModel);
+        });
     }
 
     private void openViewer(int pos) {

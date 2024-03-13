@@ -45,7 +45,8 @@
         app:cardBackgroundColor="@color/icons_background"
         app:cardCornerRadius="100dp"
         android:layout_above="@id/bottomLayout"
-        android:layout_margin="15dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginBottom="70dp"
         app:cardElevation="0dp"
         app:strokeWidth="0dp">
 
@@ -64,7 +65,8 @@
         app:cardCornerRadius="100dp"
         android:layout_above="@id/bottomLayout"
         android:layout_alignParentEnd="true"
-        android:layout_margin="15dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="70dp"
         app:cardElevation="0dp"
         app:strokeWidth="0dp">
 
@@ -76,16 +78,29 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+    <TextView
+        android:id="@+id/add"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add a message"
+        android:textColor="@color/white"
+        android:padding="15dp"
+        android:gravity="center"
+        android:paddingBottom="0dp"
+        android:background="@color/background_trans"
+        app:cornerRadius="0dp"
+        android:layout_above="@id/bottomLayout"
+        android:layout_margin="0dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:id="@+id/bottomLayout"
-        android:layout_marginTop="5dp"
         android:paddingHorizontal="15dp"
         android:paddingBottom="10dp"
         android:orientation="vertical">
+
 
         <EditText
             android:id="@+id/message"
@@ -94,8 +109,12 @@
             android:background="@drawable/text_bg"
             android:backgroundTint="@color/icons_background"
             android:padding="8dp"
+            android:visibility="gone"
             android:layout_marginTop="10dp"
             android:hint="Add a message"
+            android:textColor="@color/white"
+            android:cursorVisible="true"
+            android:textCursorDrawable="@drawable/custom_cursor"
             android:textColorHint="@color/bg" />
 
         <LinearLayout
@@ -199,6 +218,81 @@
             </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/addMessageLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:layout_marginTop="6dp"
+        android:visibility="gone"
+        android:layout_alignParentBottom="true"
+        android:background="@color/background"
+        android:layout_marginHorizontal="10dp"
+        android:orientation="horizontal">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="26dp"
+            android:layout_weight="1"
+            app:cardBackgroundColor="@color/icons_background"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="8dp">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:padding="2dp"
+                    app:tint="@color/white"
+                    android:src="@drawable/smile" />
+
+                <EditText
+                    android:id="@+id/messageAdd"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="10dp"
+                    android:textSize="14sp"
+                    android:cursorVisible="true"
+                    android:textCursorDrawable="@drawable/custom_cursor"
+                    android:textColorHint="@color/hint"
+                    android:textColor="@color/white"
+                    android:background="@color/icons_background"
+                    android:inputType="textMultiLine"
+                    android:hint="Add a message" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/addSend"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            app:cardBackgroundColor="@color/chat"
+            app:cardCornerRadius="100dp"
+            android:layout_marginStart="8dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:padding="5dp"
+                app:tint="@color/white"
+                android:src="@drawable/check_solid" />
+
+        </com.google.android.material.card.MaterialCardView>
 
     </LinearLayout>
 

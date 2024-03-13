@@ -7,6 +7,12 @@
     android:background="@color/white"
     tools:context=".activities.ChatActivity">
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="&#xA;                        android:visibility=&quot;gone&quot;" />
+
     <LinearLayout
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -204,7 +210,7 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="100dp"
+                app:cardCornerRadius="26dp"
                 android:layout_weight="1"
                 app:cardBackgroundColor="@color/bottom"
                 app:cardElevation="0dp">
@@ -217,8 +223,8 @@
                     android:padding="8dp">
 
                     <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
                         android:padding="2dp"
                         android:src="@drawable/smile" />
 
@@ -229,28 +235,31 @@
                         android:layout_weight="1"
                         android:layout_marginHorizontal="10dp"
                         android:textSize="14sp"
+                        android:cursorVisible="true"
+                        android:textCursorDrawable="@drawable/custom_cursor"
+                        android:textColorHint="@color/icons_background"
                         android:background="@color/bottom"
                         android:inputType="textMultiLine"
                         android:hint="Signal message" />
 
                     <ImageView
                         android:id="@+id/camera"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
                         android:src="@drawable/camera" />
 
                     <ImageView
                         android:id="@+id/mic"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
                         android:padding="2dp"
                         android:layout_marginStart="10dp"
                         android:src="@drawable/mic" />
 
                     <ImageView
                         android:id="@+id/add"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
                         android:visibility="gone"
                         android:padding="5dp"
                         android:src="@drawable/plus" />
@@ -261,8 +270,8 @@
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/send"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
                 app:cardBackgroundColor="@color/chat"
                 app:cardCornerRadius="100dp"
                 android:layout_marginStart="8dp"
@@ -271,8 +280,8 @@
 
                 <ImageView
                     android:id="@+id/iconSend"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
                     android:layout_gravity="center"
                     android:padding="5dp"
                     app:tint="@color/white"
