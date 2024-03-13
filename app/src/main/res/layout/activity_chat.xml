@@ -184,7 +184,6 @@
                 android:layout_height="match_parent"
                 tools:listitem="@layout/chat_right"
                 android:id="@+id/chatRC"
-                android:nestedScrollingEnabled="false"
                 android:layout_marginTop="5dp" />
 
         </LinearLayout>

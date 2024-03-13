@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -15,6 +16,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -26,7 +28,9 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.avatarfirst.avatargenlib.AvatarGenerator;
 import com.bumptech.glide.Glide;
@@ -35,8 +39,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.material.timepicker.MaterialTimePicker;
-import com.google.android.material.timepicker.TimeFormat;
 import com.moutamid.signalcopy.Constants;
 import com.moutamid.signalcopy.R;
 import com.moutamid.signalcopy.adapters.GalleryAdapter;
@@ -68,6 +70,7 @@ public class ChatActivity extends AppCompatActivity {
             return text.substring(0, limit) + "...";
         }
     }
+
     private void hideKeyboard() {
         binding.message.clearFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -78,6 +81,26 @@ public class ChatActivity extends AppCompatActivity {
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(color);
+    }
+
+    boolean isKeyboardShowing = false;
+    boolean isLastVisible = false;
+    void onKeyboardVisibilityChanged(boolean opened) {
+        if (isLastVisible){
+            binding.scrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    binding.scrollView.fullScroll(View.FOCUS_DOWN);
+                }
+            });
+        }
+    }
+
+    boolean isLastVisible() {
+        LinearLayoutManager layoutManager = ((LinearLayoutManager)binding.chatRC.getLayoutManager());
+        int pos = layoutManager.findLastCompletelyVisibleItemPosition();
+        int numItems = binding.chatRC.getAdapter().getItemCount();
+        return (pos >= numItems - 1);
     }
 
     @Override
@@ -91,13 +114,48 @@ public class ChatActivity extends AppCompatActivity {
         binding.name.setText(getShortenedText(contactsModel.name, 10));
         binding.name2.setText(contactsModel.name);
         binding.number.setText(contactsModel.number);
-
-        binding.chatRC.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setStackFromEnd(true);
+        binding.chatRC.setLayoutManager(layoutManager);
         binding.chatRC.setHasFixedSize(false);
 
         binding.message.setFocusableInTouchMode(true);
         binding.message.requestFocus();
         hideKeyboard();
+
+
+
+        binding.scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                isLastVisible = !v.canScrollVertically(1);
+            }
+        });
+
+        binding.getRoot().getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+
+                        Rect r = new Rect();
+                        binding.getRoot().getWindowVisibleDisplayFrame(r);
+                        int screenHeight = binding.getRoot().getRootView().getHeight();
+
+                        // r.bottom is the position above soft keypad or device button.
+                        // if keypad is shown, the r.bottom is smaller than that before.
+                        int keypadHeight = screenHeight - r.bottom;
+
+                        Log.d(TAG, "keypadHeight = " + keypadHeight);
+
+                        if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to determine keypad height.
+                            // keyboard is opened
+                            if (!isKeyboardShowing) {
+                                isKeyboardShowing = true;
+                                onKeyboardVisibilityChanged(true);
+                            }
+                        }
+                    }
+                });
 
         binding.scrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
@@ -269,6 +327,21 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
+    private void getMessages() {
+        list = Stash.getArrayList(contactsModel.id, MessageModel.class);
+        adapter = new MessageAdapter(this, list, contactsModel.name, deleteListener, binding.chatRC);
+        binding.chatRC.setAdapter(adapter);
+//        // binding.chatRC.scrollToPosition(list.size() - 1);
+//        binding.chatRC.smoothScrollToPosition(binding.chatRC.getAdapter().getItemCount() - 1);
+//        binding.chatRC.getLayoutManager().scrollToPosition(adapter.getItemCount() - 1);
+        binding.scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                binding.scrollView.fullScroll(View.FOCUS_DOWN);
+            }
+        });
+    }
+
     ArrayList<MessageModel> list;
     MessageAdapter adapter;
 
@@ -322,13 +395,8 @@ public class ChatActivity extends AppCompatActivity {
             TextInputLayout time = dialog.findViewById(R.id.time);
             MaterialButton delete = dialog.findViewById(R.id.delete);
 
-            try {
-                String s = new SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(messageModel.getTimestamp());
-                time.getEditText().setText(s);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            message.getEditText().setText(messageModel.getMessage());
+            time.getEditText().setText(messageModel.getTimestamp().trim());
+            message.getEditText().setText(messageModel.getMessage().trim());
 
             cancel.setOnClickListener(v -> dialog.dismiss());
 
@@ -344,7 +412,8 @@ public class ChatActivity extends AppCompatActivity {
         if (i != -1) {
             list.get(i).setMessage(msg + "\t\t\t");
             list.get(i).setTimestamp(time);
-            adapter.notifyItemRemoved(i);
+            adapter.notifyItemChanged(i);
+            // adapter.notifyItemRemoved(i);
             Stash.put(contactsModel.id, list);
         }
     }
@@ -377,14 +446,6 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    private void getMessages() {
-        list = Stash.getArrayList(contactsModel.id, MessageModel.class);
-        adapter = new MessageAdapter(this, list, contactsModel.name, deleteListener, binding.chatRC);
-        binding.chatRC.setAdapter(adapter);
-        binding.chatRC.scrollToPosition(list.size() - 1);
-        binding.scrollView.fullScroll(View.FOCUS_DOWN);
-    }
-
     private void receive(String message, boolean isMedia, String last) {
         if (!message.isEmpty() || isMedia) {
             binding.message.setText("");
@@ -399,7 +460,20 @@ public class ChatActivity extends AppCompatActivity {
             list.add(messageModel);
             Stash.put(contactsModel.id, list);
             adapter.notifyItemInserted(list.size() - 1);
-            binding.scrollView.fullScroll(View.FOCUS_DOWN);
+//            binding.chatRC.smoothScrollToPosition(binding.chatRC.getAdapter().getItemCount() - 1);
+//            binding.chatRC.getLayoutManager().scrollToPosition(adapter.getItemCount() - 1);
+            binding.scrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    View lastChild = binding.scrollView.getChildAt(binding.scrollView.getChildCount() - 1);
+                    int bottom = lastChild.getBottom() + binding.scrollView.getPaddingBottom();
+                    int sy = binding.scrollView.getScrollY();
+                    int sh = binding.scrollView.getHeight();
+                    int delta = bottom - (sy + sh);
+
+                    binding.scrollView.smoothScrollBy(0, delta);
+                }
+            });
             binding.message.requestFocus();
         }
     }
@@ -419,7 +493,19 @@ public class ChatActivity extends AppCompatActivity {
             list.add(messageModel);
             Stash.put(contactsModel.id, list);
             adapter.notifyItemInserted(list.size() - 1);
-            binding.scrollView.fullScroll(View.FOCUS_DOWN);
+//            binding.chatRC.smoothScrollToPosition(binding.chatRC.getAdapter().getItemCount() - 1);
+//            binding.chatRC.getLayoutManager().scrollToPosition(adapter.getItemCount() - 1);
+            binding.scrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    View lastChild = binding.scrollView.getChildAt(binding.scrollView.getChildCount() - 1);
+                    int bottom = lastChild.getBottom() + binding.scrollView.getPaddingBottom();
+                    int sy = binding.scrollView.getScrollY();
+                    int sh = binding.scrollView.getHeight();
+                    int delta = bottom - (sy + sh);
+                    binding.scrollView.smoothScrollBy(0, delta);
+                }
+            });
             binding.message.requestFocus();
         }
     }
@@ -500,7 +586,7 @@ public class ChatActivity extends AppCompatActivity {
             messageAdd.requestFocus();
         });
 
-        if (!binding.message.getText().toString().isEmpty()){
+        if (!binding.message.getText().toString().isEmpty()) {
             message.setVisibility(View.VISIBLE);
             add.setVisibility(View.GONE);
         }
@@ -508,7 +594,7 @@ public class ChatActivity extends AppCompatActivity {
         addSend.setOnClickListener(v -> {
             addMessageLayout.setVisibility(View.GONE);
             messageAdd.clearFocus();
-            if (messageAdd.getText().toString().isEmpty()){
+            if (messageAdd.getText().toString().isEmpty()) {
                 message.setVisibility(View.GONE);
                 add.setVisibility(View.VISIBLE);
             } else {

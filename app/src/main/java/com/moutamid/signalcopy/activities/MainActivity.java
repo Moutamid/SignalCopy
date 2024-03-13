@@ -36,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
         binding.profile.setOnClickListener(v -> {
             startActivity(new Intent(this, SettingActivity.class));
         });
+        binding.more.setOnClickListener(v -> {
+            startActivity(new Intent(this, SettingActivity.class));
+        });
 
         binding.bottomNav.setItemActiveIndicatorColor(ColorStateList.valueOf(getResources().getColor(R.color.active)));
         binding.bottomNav.setOnNavigationItemSelectedListener(item -> {

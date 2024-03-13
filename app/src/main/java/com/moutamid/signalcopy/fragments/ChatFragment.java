@@ -106,6 +106,7 @@ public class ChatFragment extends Fragment {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.setCancelable(true);
 
+        TextView title = dialog.findViewById(R.id.title);
         MaterialButton save = dialog.findViewById(R.id.save);
         MaterialButton add = dialog.findViewById(R.id.add);
         MaterialButton delete = dialog.findViewById(R.id.delete);
@@ -114,10 +115,14 @@ public class ChatFragment extends Fragment {
         TextInputLayout number = dialog.findViewById(R.id.number);
         TextInputLayout lastMessage = dialog.findViewById(R.id.lastMessage);
 
+        title.setText("Update Contact");
+
         profile2 = dialog.findViewById(R.id.profile2);
 
         name.getEditText().setText(model.name);
         number.getEditText().setText(model.number);
+        lastMessage.getEditText().setText(model.lastMessage);
+        time.getEditText().setText(model.time);
 
         Glide.with(requireContext()).load(model.image).placeholder(
                 new AvatarGenerator.AvatarBuilder(requireContext())
