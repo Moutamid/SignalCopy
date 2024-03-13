@@ -77,8 +77,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         MessageModel model = list.get(holder.getAbsoluteAdapterPosition());
 
         holder.message.setText(model.getMessage() + "\t\t\t");
-        String time = new SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(model.getTimestamp());
-        holder.time.setText(time);
+        holder.time.setText(model.getTimestamp() + "");
 
         if (model.isMedia()){
             Glide.with(context).load(model.getImage()).placeholder(R.color.black).into(holder.imageView);

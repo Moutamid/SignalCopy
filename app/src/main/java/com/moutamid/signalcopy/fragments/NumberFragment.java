@@ -33,7 +33,7 @@ public class NumberFragment extends Fragment {
                         .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
                         .show();
             } else {
-                String numb = binding.colonyID.getEditText().getText().toString() + binding.number.getEditText().getText().toString();
+                String numb = binding.ccp.getSelectedCountryCodeWithPlus() + binding.number.getEditText().getText().toString();
                 Stash.put("numb", numb);
                 requireActivity().getSupportFragmentManager().beginTransaction().replace(R.id.frameLayout, new NameFragment()).commit();
             }

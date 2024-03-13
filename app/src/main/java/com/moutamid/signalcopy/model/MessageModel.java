@@ -2,13 +2,13 @@ package com.moutamid.signalcopy.model;
 
 public class MessageModel {
     String id, senderID, message, image;
-    long timestamp;
+    String timestamp;
     boolean isMedia, isDate;
 
     public MessageModel() {
     }
 
-    public MessageModel(String id, String senderID, String message, String image, long timestamp, boolean isMedia, boolean isDate) {
+    public MessageModel(String id, String senderID, String message, String image, String timestamp, boolean isMedia, boolean isDate) {
         this.id = id;
         this.senderID = senderID;
         this.message = message;
@@ -58,11 +58,11 @@ public class MessageModel {
         this.message = message;
     }
 
-    public long getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 

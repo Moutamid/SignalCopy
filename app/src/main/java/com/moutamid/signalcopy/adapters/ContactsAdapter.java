@@ -60,21 +60,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
                         .build()).into(holder.profile);
         holder.name.setText(model.name);
         holder.lastMessage.setText(model.lastMessage);
-        long currentTimeMillis = System.currentTimeMillis();
-        long timeDifference = currentTimeMillis - model.time;
-        if (timeDifference <= 60 * 1000) {
-            holder.time.setText("now");
-        } else if (timeDifference <= 60 * 60 * 1000) {
-            long minutesPassed = timeDifference / (60 * 1000);
-            holder.time.setText(minutesPassed + "m");
-        } else if (timeDifference <= 24 * 60 * 60 * 1000) {
-            long hoursPassed = timeDifference / (60 * 60 * 1000);
-            holder.time.setText(hoursPassed + "h");
-        } else {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE", Locale.getDefault());
-            String dayName = dateFormat.format(new Date(model.time));
-            holder.time.setText(dayName);
-        }
+        holder.time.setText(model.time + "");
+
         holder.itemView.setOnClickListener(v -> {
             Stash.put("PASS", model);
             context.startActivity(new Intent(context, ChatActivity.class));

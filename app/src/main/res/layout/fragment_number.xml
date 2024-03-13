@@ -53,24 +53,17 @@
             android:layout_marginTop="10dp"
             android:orientation="horizontal">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/colonyID"
-                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                app:boxStrokeColor="@color/blue"
-                app:hintEnabled="true"
-                android:layout_marginEnd="4dp"
-                app:hintTextColor="@color/blue">
-
-                <AutoCompleteTextView
-                    android:id="@+id/colonyIdLIst"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="+92"
-                    android:hint="+0" />
-
-            </com.google.android.material.textfield.TextInputLayout>
+            <com.hbb20.CountryCodePicker
+                android:id="@+id/ccp"
+                android:layout_width="wrap_content"
+                android:layout_height="57dp"
+                app:ccp_autoDetectCountry="true"
+                app:ccp_showFlag="true"
+                android:gravity="center"
+                app:ccp_showNameCode="false"
+                android:background="@drawable/bottom_stroke"
+                app:ccp_padding="12dp"
+                android:layout_marginBottom="10dp" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/number"

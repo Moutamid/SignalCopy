@@ -107,13 +107,13 @@ public class ChatFragment extends Fragment {
         dialog.setCancelable(true);
 
         MaterialButton save = dialog.findViewById(R.id.save);
-        MaterialButton time = dialog.findViewById(R.id.time);
         MaterialButton add = dialog.findViewById(R.id.add);
         MaterialButton delete = dialog.findViewById(R.id.delete);
         TextInputLayout name = dialog.findViewById(R.id.name);
+        TextInputLayout time = dialog.findViewById(R.id.time);
         TextInputLayout number = dialog.findViewById(R.id.number);
         TextInputLayout lastMessage = dialog.findViewById(R.id.lastMessage);
-        TextView pikedTime = dialog.findViewById(R.id.pikedTime);
+
         profile2 = dialog.findViewById(R.id.profile2);
 
         name.getEditText().setText(model.name);
@@ -169,36 +169,8 @@ public class ChatFragment extends Fragment {
             ).into(profile2);
         });
 
-
-        final String[] t = {""};
-        final long[] selectedTimeInMillis = new long[1];
-        selectedTimeInMillis[0] = new Date().getTime();
-        String s = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(selectedTimeInMillis[0]);
-        pikedTime.setText(s);
-        t[0] = s;
-        time.setOnClickListener(v -> {
-            MaterialTimePicker picker = new MaterialTimePicker.Builder()
-                    .setTimeFormat(TimeFormat.CLOCK_24H)
-                    .setHour(12)
-                    .setMinute(0)
-                    .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
-                    .setPositiveButtonText("Set Time")
-                    .build();
-            picker.show(requireActivity().getSupportFragmentManager(), "");
-            picker.addOnPositiveButtonClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int selectedHour = picker.getHour();
-                    int selectedMinute = picker.getMinute();
-                    selectedTimeInMillis[0] = convertToMilliseconds(selectedHour, selectedMinute);
-                    t[0] = selectedHour + ":" + selectedMinute;
-                    pikedTime.setText(t[0]);
-                }
-            });
-        });
-
         save.setOnClickListener(v -> {
-            if (name.getEditText().getText().toString().isEmpty() || t[0].isEmpty()) {
+            if (name.getEditText().getText().toString().isEmpty() || time.getEditText().getText().toString().isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill all details", Toast.LENGTH_SHORT).show();
             } else {
                 ArrayList<ContactsModel> list = Stash.getArrayList(Constants.USERS, ContactsModel.class);
@@ -208,9 +180,8 @@ public class ChatFragment extends Fragment {
                     list.get(index).name = name.getEditText().getText().toString();
                     list.get(index).lastMessage = lastMessage.getEditText().getText().toString();
                     list.get(index).number = number.getEditText().getText().toString();
-                    list.get(index).time = selectedTimeInMillis[0];
+                    list.get(index).time = time.getEditText().getText().toString();
                 }
-
                 Stash.put(Constants.USERS, list);
                 getList();
                 dialog.dismiss();
@@ -242,41 +213,14 @@ public class ChatFragment extends Fragment {
         dialog.setCancelable(true);
 
         MaterialButton save = dialog.findViewById(R.id.save);
-        MaterialButton time = dialog.findViewById(R.id.time);
         MaterialButton add = dialog.findViewById(R.id.add);
         MaterialButton delete = dialog.findViewById(R.id.delete);
         TextInputLayout name = dialog.findViewById(R.id.name);
         TextInputLayout number = dialog.findViewById(R.id.number);
         TextInputLayout lastMessage = dialog.findViewById(R.id.lastMessage);
-        TextView pikedTime = dialog.findViewById(R.id.pikedTime);
-        profile2 = dialog.findViewById(R.id.profile2);
+        TextInputLayout time = dialog.findViewById(R.id.time);
 
-        final String[] t = {""};
-        final long[] selectedTimeInMillis = new long[1];
-        selectedTimeInMillis[0] = new Date().getTime();
-        String s = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(selectedTimeInMillis[0]);
-        pikedTime.setText(s);
-        t[0] = s;
-        time.setOnClickListener(v -> {
-            MaterialTimePicker picker = new MaterialTimePicker.Builder()
-                    .setTimeFormat(TimeFormat.CLOCK_24H)
-                    .setHour(12)
-                    .setMinute(0)
-                    .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
-                    .setPositiveButtonText("Set Time")
-                    .build();
-            picker.show(requireActivity().getSupportFragmentManager(), "");
-            picker.addOnPositiveButtonClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int selectedHour = picker.getHour();
-                    int selectedMinute = picker.getMinute();
-                    selectedTimeInMillis[0] = convertToMilliseconds(selectedHour, selectedMinute);
-                    t[0] = selectedHour + ":" + selectedMinute;
-                    pikedTime.setText(t[0]);
-                }
-            });
-        });
+        profile2 = dialog.findViewById(R.id.profile2);
 
         delete.setOnClickListener(v -> {
             image = Uri.EMPTY;
@@ -317,10 +261,10 @@ public class ChatFragment extends Fragment {
         });
 
         save.setOnClickListener(v -> {
-            if (name.getEditText().getText().toString().isEmpty() || t[0].isEmpty()) {
+            if (name.getEditText().getText().toString().isEmpty() || time.getEditText().getText().toString().isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill all details", Toast.LENGTH_SHORT).show();
             } else {
-                ContactsModel model = new ContactsModel(UUID.randomUUID().toString(), name.getEditText().getText().toString(), image.toString(), lastMessage.getEditText().getText().toString(), number.getEditText().getText().toString(), selectedTimeInMillis[0]);
+                ContactsModel model = new ContactsModel(UUID.randomUUID().toString(), name.getEditText().getText().toString(), image.toString(), lastMessage.getEditText().getText().toString(), number.getEditText().getText().toString(), time.getEditText().getText().toString());
                 ArrayList<ContactsModel> list = Stash.getArrayList(Constants.USERS, ContactsModel.class);
                 list.add(model);
                 Stash.put(Constants.USERS, list);

@@ -129,30 +129,25 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <LinearLayout
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/time"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
+            app:boxStrokeColor="@color/blue"
+            app:hintEnabled="true"
+            android:layout_marginTop="8dp"
+            app:boxBackgroundColor="@color/bottom"
+            android:hint="Time (required)"
+            app:hintTextColor="@color/blue">
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/active"
-                android:text="Pick a time"
-                android:textColor="@color/dark_blue_2" />
-
-            <TextView
-                android:id="@+id/pikedTime"
+            <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:text="00/00/0000 00:00 AM"
-                android:textSize="16sp" />
+                android:text="00:00 AM"/>
 
-        </LinearLayout>
+        </com.google.android.material.textfield.TextInputLayout>
+
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/save"

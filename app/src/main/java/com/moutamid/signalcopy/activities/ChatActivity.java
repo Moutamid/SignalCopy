@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -72,6 +73,13 @@ public class ChatActivity extends AppCompatActivity {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(binding.message.getWindowToken(), 0);
     }
+
+    private void setStatusBarColor(int color) {
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(color);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +99,18 @@ public class ChatActivity extends AppCompatActivity {
         binding.message.requestFocus();
         hideKeyboard();
 
+        binding.scrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                if (scrollY == 0) {
+                    setStatusBarColor(getResources().getColor(R.color.white));
+                    binding.toolbar.setBackgroundColor(getResources().getColor(R.color.white));
+                } else {
+                    setStatusBarColor(getResources().getColor(R.color.bottom));
+                    binding.toolbar.setBackgroundColor(getResources().getColor(R.color.bottom));
+                }
+            }
+        });
 
         binding.message.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -233,11 +253,11 @@ public class ChatActivity extends AppCompatActivity {
             } else {
                 if (Stash.getBoolean(Constants.EDIT_MODE, false)) {
                     new MaterialAlertDialogBuilder(this)
-                            .setMessage("Send message to whom?")
-                            .setPositiveButton("Myself", (dialog, which) -> {
+                            .setMessage("Please Confirm")
+                            .setPositiveButton("Receive", (dialog, which) -> {
                                 dialog.dismiss();
                                 receive(binding.message.getText().toString() + "\t\t", false, binding.message.getText().toString());
-                            }).setNegativeButton(contactsModel.name, (dialog, which) -> {
+                            }).setNegativeButton("Send", (dialog, which) -> {
                                 dialog.dismiss();
                                 send(binding.message.getText().toString() + "\t\t\t", false, binding.message.getText().toString());
                             })
@@ -299,52 +319,27 @@ public class ChatActivity extends AppCompatActivity {
 
             TextInputLayout message = dialog.findViewById(R.id.message);
             MaterialButton cancel = dialog.findViewById(R.id.cancel);
-            MaterialButton time = dialog.findViewById(R.id.time);
+            TextInputLayout time = dialog.findViewById(R.id.time);
             MaterialButton delete = dialog.findViewById(R.id.delete);
-            TextView pikedTime = dialog.findViewById(R.id.pikedTime);
 
-            final String[] t = {""};
-            final long[] selectedTimeInMillis = new long[1];
-            selectedTimeInMillis[0] = messageModel.getTimestamp();
-            String s = new SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(selectedTimeInMillis[0]);
-            pikedTime.setText(s);
-            t[0] = s;
-
-            time.setOnClickListener(v -> {
-                MaterialTimePicker picker = new MaterialTimePicker.Builder()
-                        .setTimeFormat(TimeFormat.CLOCK_24H)
-                        .setHour(12)
-                        .setMinute(0)
-                        .setInputMode(MaterialTimePicker.INPUT_MODE_CLOCK)
-                        .setPositiveButtonText("Set Time")
-                        .build();
-                picker.show(ChatActivity.this.getSupportFragmentManager(), "");
-                picker.addOnPositiveButtonClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        int selectedHour = picker.getHour();
-                        int selectedMinute = picker.getMinute();
-                        selectedTimeInMillis[0] = convertToMilliseconds(selectedHour, selectedMinute);
-                        t[0] = selectedHour + ":" + selectedMinute;
-                        pikedTime.setText(t[0]);
-                    }
-                });
-            });
+            try {
+                String s = new SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(messageModel.getTimestamp());
+                time.getEditText().setText(s);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            message.getEditText().setText(messageModel.getMessage());
 
             cancel.setOnClickListener(v -> dialog.dismiss());
 
             delete.setOnClickListener(v -> {
                 dialog.dismiss();
-                editMessage(messageModel, selectedTimeInMillis[0], message.getEditText().getText().toString());
+                editMessage(messageModel, time.getEditText().getText().toString(), message.getEditText().getText().toString());
             });
         }
     };
 
-    private long convertToMilliseconds(int hour, int minute) {
-        return (hour * 60L + minute) * 60L * 1000L;
-    }
-
-    private void editMessage(MessageModel messageModel, long time, String msg) {
+    private void editMessage(MessageModel messageModel, String time, String msg) {
         int i = retrievePosition(list, messageModel.getId());
         if (i != -1) {
             list.get(i).setMessage(msg + "\t\t\t");
@@ -374,7 +369,7 @@ public class ChatActivity extends AppCompatActivity {
             Stash.put(contactsModel.id, list);
 
             contactsModel.lastMessage = "Message Deleted";
-            contactsModel.time = new Date().getTime();
+            contactsModel.time = "Now";
             ArrayList<ContactsModel> chatList = Stash.getArrayList(Constants.USERS, ContactsModel.class);
             int index = retrieveIndex(chatList);
             chatList.set(index, contactsModel);
@@ -393,16 +388,17 @@ public class ChatActivity extends AppCompatActivity {
         if (!message.isEmpty() || isMedia) {
             binding.message.setText("");
             contactsModel.lastMessage = last;
-            contactsModel.time = new Date().getTime();
+            contactsModel.time = "Now";
             ArrayList<ContactsModel> chatList = Stash.getArrayList(Constants.USERS, ContactsModel.class);
             int index = retrieveIndex(chatList);
             chatList.set(index, contactsModel);
             Stash.put(Constants.USERS, chatList);
-            MessageModel messageModel = new MessageModel(UUID.randomUUID().toString(), contactsModel.id, message, imageUri.toString(), new Date().getTime(), isMedia, false);
+            String s = new SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(new Date().getTime());
+            MessageModel messageModel = new MessageModel(UUID.randomUUID().toString(), contactsModel.id, message, imageUri.toString(), s, isMedia, false);
             list.add(messageModel);
             Stash.put(contactsModel.id, list);
             adapter.notifyItemInserted(list.size() - 1);
-            binding.chatRC.scrollToPosition(list.size() - 1);
+            binding.scrollView.fullScroll(View.FOCUS_DOWN);
         }
     }
 
@@ -410,17 +406,18 @@ public class ChatActivity extends AppCompatActivity {
         if (!message.isEmpty() || isMedia) {
             binding.message.setText("");
             contactsModel.lastMessage = last;
-            contactsModel.time = new Date().getTime();
+            contactsModel.time = "Now";
             ArrayList<ContactsModel> chatList = Stash.getArrayList(Constants.USERS, ContactsModel.class);
             int index = retrieveIndex(chatList);
             chatList.set(index, contactsModel);
             Stash.put(Constants.USERS, chatList);
             UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
-            MessageModel messageModel = new MessageModel(UUID.randomUUID().toString(), userModel.number, message, imageUri.toString(), new Date().getTime(), isMedia, false);
+            String s = new SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(new Date().getTime());
+            MessageModel messageModel = new MessageModel(UUID.randomUUID().toString(), userModel.number, message, imageUri.toString(), s, isMedia, false);
             list.add(messageModel);
             Stash.put(contactsModel.id, list);
             adapter.notifyItemInserted(list.size() - 1);
-            binding.chatRC.scrollToPosition(list.size() - 1);
+            binding.scrollView.fullScroll(View.FOCUS_DOWN);
         }
     }
 
@@ -517,20 +514,21 @@ public class ChatActivity extends AppCompatActivity {
                 add.setVisibility(View.GONE);
             }
             messageAdd.setText("");
-            hideKeyboard();
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(messageAdd.getWindowToken(), 0);
         });
 
         send.setOnClickListener(v -> {
             imagePicker.dismiss();
             if (Stash.getBoolean(Constants.EDIT_MODE, false)) {
                 new MaterialAlertDialogBuilder(ChatActivity.this)
-                        .setMessage("Send message to whom?")
-                        .setPositiveButton("Myself", (dialog, which) -> {
+                        .setMessage("Please Confirm")
+                        .setPositiveButton("Receive", (dialog, which) -> {
                             dialog.dismiss();
                             imageUri = Uri.parse(image);
                             receive(message.getText().toString(), true, "Photo");
                             imageUri = Uri.EMPTY;
-                        }).setNegativeButton(contactsModel.name, (dialog, which) -> {
+                        }).setNegativeButton("Send", (dialog, which) -> {
                             dialog.dismiss();
                             imageUri = Uri.parse(image);
                             send(message.getText().toString(), true, "Photo");

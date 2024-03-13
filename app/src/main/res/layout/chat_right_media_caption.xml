@@ -37,8 +37,8 @@
             android:layout_height="wrap_content"
             android:paddingStart="12dp"
             android:paddingTop="10dp"
-            android:paddingBottom="20dp"
-            android:text="hi wassup how are you doing food"
+            android:paddingBottom="25dp"
+            android:text="hi wassup how are you doing"
             android:textColor="@android:color/white" />
 
     </LinearLayout>
