@@ -31,19 +31,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         Constants.checkApp(this);
 
-        UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
 
-        Log.d(TAG, "onCreate: " + userModel);
-
-        Glide.with(this).load(userModel.image).placeholder(
-                new AvatarGenerator.AvatarBuilder(MainActivity.this)
-                        .setLabel(userModel.name.trim().toUpperCase(Locale.ROOT))
-                        .setAvatarSize(70)
-                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
-                        .setTextSize(13)
-                        .toCircle()
-                        .build()
-        ).into(binding.profile);
 
         binding.profile.setOnClickListener(v -> {
             startActivity(new Intent(this, SettingActivity.class));
@@ -65,5 +53,23 @@ public class MainActivity extends AppCompatActivity {
         });
         binding.bottomNav.setSelectedItemId(R.id.chat);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
+
+        Log.d(TAG, "onCreate: " + userModel);
+
+        Glide.with(this).load(userModel.image).placeholder(
+                new AvatarGenerator.AvatarBuilder(MainActivity.this)
+                        .setLabel(userModel.name.trim().toUpperCase(Locale.ROOT))
+                        .setAvatarSize(70)
+                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
+                        .setTextSize(13)
+                        .toCircle()
+                        .build()
+        ).into(binding.profile);
     }
 }

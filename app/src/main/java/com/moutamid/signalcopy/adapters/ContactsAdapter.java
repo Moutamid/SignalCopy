@@ -51,14 +51,13 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     public void onBindViewHolder(@NonNull ContactVH holder, int position) {
         ContactsModel model = list.get(holder.getAbsoluteAdapterPosition());
         Glide.with(context)
-                .load(new AvatarGenerator.AvatarBuilder(context)
+                .load(model.image).placeholder(new AvatarGenerator.AvatarBuilder(context)
                         .setLabel(model.name.trim().toUpperCase(Locale.ROOT))
                         .setAvatarSize(70)
                         .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
                         .setTextSize(13)
                         .toCircle()
-                        .build()
-                ).into(holder.profile);
+                        .build()).into(holder.profile);
         holder.name.setText(model.name);
         holder.lastMessage.setText(model.lastMessage);
         long currentTimeMillis = System.currentTimeMillis();

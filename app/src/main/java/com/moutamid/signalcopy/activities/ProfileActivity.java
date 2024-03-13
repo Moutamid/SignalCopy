@@ -42,6 +42,14 @@ public class ProfileActivity extends AppCompatActivity {
 
         binding.back.setOnClickListener(v -> onBackPressed());
 
+        setUI();
+
+        binding.name.setOnClickListener(v -> showNameEdit());
+        binding.edit.setOnClickListener(v -> showPictureEdit());
+
+    }
+
+    private void setUI() {
         UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
         Glide.with(this).load(userModel.image).placeholder(
                 new AvatarGenerator.AvatarBuilder(ProfileActivity.this)
@@ -53,11 +61,8 @@ public class ProfileActivity extends AppCompatActivity {
                         .build()
         ).into(binding.profile2);
         binding.name.setText(userModel.name);
-
-        binding.name.setOnClickListener(v -> showNameEdit());
-        binding.edit.setOnClickListener(v -> showPictureEdit());
-
     }
+
     Uri image = Uri.EMPTY;
     CircleImageView profile2;
     private static final int PICK_IMAGE_REQUEST = 1001;
@@ -116,6 +121,7 @@ public class ProfileActivity extends AppCompatActivity {
             userModel.image = image.toString();
             Stash.put(Constants.STASH_USER, userModel);
             dialog.dismiss();
+            setUI();
         });
     }
 
@@ -144,6 +150,7 @@ public class ProfileActivity extends AppCompatActivity {
             userModel.name = s.trim();
             Stash.put(Constants.STASH_USER, userModel);
             dialog.dismiss();
+            setUI();
         });
 
     }
