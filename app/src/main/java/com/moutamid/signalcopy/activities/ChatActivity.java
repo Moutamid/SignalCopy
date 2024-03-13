@@ -384,7 +384,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void getMessages() {
         list = Stash.getArrayList(contactsModel.id, MessageModel.class);
-        adapter = new MessageAdapter(this, list, contactsModel.name, deleteListener);
+        adapter = new MessageAdapter(this, list, contactsModel.name, deleteListener, binding.chatRC);
         binding.chatRC.setAdapter(adapter);
         binding.chatRC.scrollToPosition(list.size() - 1);
     }

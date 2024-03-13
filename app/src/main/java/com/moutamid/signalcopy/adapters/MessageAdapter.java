@@ -3,6 +3,7 @@ package com.moutamid.signalcopy.adapters;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,12 +43,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private static final int MSG_TYPE_LEFT_MEDIA = 3;
     private static final int MSG_TYPE_RIGHT_MEDIA_CAPTION = 4;
     private static final int MSG_TYPE_LEFT_MEDIA_CAPTION = 5;
-
-    public MessageAdapter(Context context, ArrayList<MessageModel> list, String name, DeleteListener deleteListener) {
+    View rc;
+    public MessageAdapter(Context context, ArrayList<MessageModel> list, String name, DeleteListener deleteListener, View chatRC) {
         this.context = context;
         this.list = list;
         this.name = name;
         this.deleteListener = deleteListener;
+        this.rc = chatRC;
     }
 
     @NonNull
@@ -98,7 +100,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View customView = inflater.inflate(R.layout.buttons_messages, null);
         PopupWindow popupWindow = new PopupWindow(customView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-        popupWindow.showAsDropDown(v);
+       // popupWindow.showAsDropDown(v);
+        int[] location = new int[2];
+        v.getLocationOnScreen(location);
+        popupWindow.showAtLocation(v, Gravity.NO_GRAVITY, location[0], location[1]);
         MaterialButton edit = customView.findViewById(R.id.edit);
         MaterialButton delete = customView.findViewById(R.id.delete);
 
