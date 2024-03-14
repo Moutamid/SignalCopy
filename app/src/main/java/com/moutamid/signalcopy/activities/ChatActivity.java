@@ -129,6 +129,13 @@ public class ChatActivity extends AppCompatActivity {
         binding.name2.setOnClickListener(v -> showProfile());
         binding.more.setOnClickListener(v -> showProfile());
 
+        binding.scrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                isLastVisible = !v.canScrollVertically(1);
+            }
+        });
+
         binding.getRoot().getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
@@ -420,12 +427,18 @@ public class ChatActivity extends AppCompatActivity {
             dialog.show();
 
             TextInputLayout message = dialog.findViewById(R.id.message);
+            TextView heading = dialog.findViewById(R.id.heading);
             MaterialButton cancel = dialog.findViewById(R.id.cancel);
             TextInputLayout time = dialog.findViewById(R.id.time);
             MaterialButton delete = dialog.findViewById(R.id.delete);
 
             time.getEditText().setText(messageModel.getTimestamp().trim());
             message.getEditText().setText(messageModel.getMessage().trim());
+
+            if (messageModel.isDate()){
+                message.setVisibility(View.GONE);
+                heading.setText("Edit Time");
+            }
 
             cancel.setOnClickListener(v -> dialog.dismiss());
 
@@ -439,10 +452,10 @@ public class ChatActivity extends AppCompatActivity {
     private void editMessage(MessageModel messageModel, String time, String msg) {
         int i = retrievePosition(list, messageModel.getId());
         if (i != -1) {
-            list.get(i).setMessage(msg + "\t\t\t");
+            msg = msg.isEmpty() ? msg : msg + "\t\t\t";
+            list.get(i).setMessage(msg.trim());
             list.get(i).setTimestamp(time);
             adapter.notifyItemChanged(i);
-            // adapter.notifyItemRemoved(i);
             Stash.put(contactsModel.id, list);
         }
     }
