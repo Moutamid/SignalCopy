@@ -65,14 +65,73 @@
 
             </LinearLayout>
 
-            <de.hdodenhof.circleimageview.CircleImageView
+            <include
+                layout="@layout/profile_icon"
                 android:id="@+id/profile2"
                 android:layout_width="90dp"
                 android:layout_height="90dp"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/profile_icon" />
+                android:layout_gravity="center_horizontal" />
 
         </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/bottom"
+            android:gravity="start|center"
+            android:paddingStart="20dp"
+            android:text="Pick Image\nBackground"
+            android:layout_marginEnd="5dp"
+            android:textColor="@color/black"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/color"
+            app:iconPadding="20dp"
+            app:iconTint="@color/black" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/textBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/bottom"
+            android:gravity="start|center"
+            android:paddingStart="20dp"
+            android:text="Pick Text Color"
+            android:layout_marginStart="5dp"
+            android:layout_weight="1"
+            android:textColor="@color/black"
+            app:cornerRadius="12dp"
+            app:icon="@drawable/color"
+            app:iconPadding="20dp"
+            app:iconTint="@color/black" />
+
+    </LinearLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/iconName"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:boxStrokeColor="@color/blue"
+            app:hintEnabled="true"
+            android:layout_marginTop="4dp"
+            app:boxBackgroundColor="@color/bottom"
+            android:hint="Icon Name"
+            app:hintTextColor="@color/blue">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textCapCharacters"
+                android:maxLength="2"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/name"
@@ -145,7 +204,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="00:00 AM"/>
+                android:text="Now"/>
 
         </com.google.android.material.textfield.TextInputLayout>
 

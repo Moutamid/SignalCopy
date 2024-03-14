@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -15,6 +16,7 @@ import com.avatarfirst.avatargenlib.AvatarGenerator;
 import com.bumptech.glide.Glide;
 import com.fxn.stash.Stash;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.moutamid.signalcopy.Constants;
 import com.moutamid.signalcopy.R;
 import com.moutamid.signalcopy.activities.ChatActivity;
@@ -50,14 +52,20 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
     @Override
     public void onBindViewHolder(@NonNull ContactVH holder, int position) {
         ContactsModel model = list.get(holder.getAbsoluteAdapterPosition());
-        Glide.with(context)
-                .load(model.image).placeholder(new AvatarGenerator.AvatarBuilder(context)
-                        .setLabel(model.name.trim().toUpperCase(Locale.ROOT))
-                        .setAvatarSize(70)
-                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
-                        .setTextSize(13)
-                        .toCircle()
-                        .build()).into(holder.profile);
+
+        if (model.image.isEmpty()){
+            holder.profile.setVisibility(View.GONE);
+            holder.text.setVisibility(View.VISIBLE);
+            holder.text.setText(model.iconName);
+            holder.text.setTextColor(model.textColor);
+            holder.text.setTextSize(18);
+            ((MaterialCardView)holder.view).setCardBackgroundColor(model.bgColor);
+        } else {
+            holder.profile.setVisibility(View.VISIBLE);
+            holder.text.setVisibility(View.GONE);
+            Glide.with(context).load(model.image).into(holder.profile);
+        }
+
         holder.name.setText(model.name);
         holder.lastMessage.setText(model.lastMessage);
         holder.time.setText(model.time + "");
@@ -97,14 +105,18 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.Contac
 
     public class ContactVH extends RecyclerView.ViewHolder {
         TextView time, name, lastMessage;
-        CircleImageView profile;
+        View view;
+        ImageView profile;
+        TextView text;
 
         public ContactVH(@NonNull View itemView) {
             super(itemView);
             time = itemView.findViewById(R.id.time);
             lastMessage = itemView.findViewById(R.id.lastMessage);
             name = itemView.findViewById(R.id.name);
-            profile = itemView.findViewById(R.id.profile);
+            view = itemView.findViewById(R.id.profile2);
+            text = view.findViewById(R.id.text);
+            profile = view.findViewById(R.id.profile);
         }
     }
 

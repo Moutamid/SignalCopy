@@ -31,16 +31,18 @@ public class StoryFragment extends Fragment {
 
         UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
 
-        Glide.with(this)
-                .load(userModel.image).placeholder(
-                        new AvatarGenerator.AvatarBuilder(requireContext())
-                                .setLabel(userModel.name.trim().toUpperCase(Locale.ROOT))
-                                .setAvatarSize(70)
-                                .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
-                                .setTextSize(13)
-                                .toCircle()
-                                .build()
-                ).into(binding.profile);
+        if (userModel.image.isEmpty()){
+            binding.profile.text.setTextSize(20);
+            binding.profile.cardViewRoot.setCardBackgroundColor(userModel.bgColor);
+            binding.profile.text.setTextColor(userModel.textColor);
+            binding.profile.text.setText(userModel.iconName);
+            binding.profile.text.setVisibility(View.VISIBLE);
+            binding.profile.profile.setVisibility(View.GONE);
+        } else {
+            binding.profile.text.setVisibility(View.GONE);
+            binding.profile.profile.setVisibility(View.VISIBLE);
+            Glide.with(this).load(userModel.image).into(binding.profile.profile);
+        }
 
         return binding.getRoot();
     }

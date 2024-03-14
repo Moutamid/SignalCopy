@@ -3,17 +3,21 @@ package com.moutamid.signalcopy.fragments;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,13 +26,15 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.avatarfirst.avatargenlib.AvatarGenerator;
 import com.bumptech.glide.Glide;
+import com.flask.colorpicker.ColorPickerView;
+import com.flask.colorpicker.OnColorSelectedListener;
+import com.flask.colorpicker.builder.ColorPickerClickListener;
+import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 import com.fxn.stash.Stash;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.android.material.timepicker.MaterialTimePicker;
-import com.google.android.material.timepicker.TimeFormat;
 import com.moutamid.signalcopy.Constants;
 import com.moutamid.signalcopy.R;
 import com.moutamid.signalcopy.adapters.ContactsAdapter;
@@ -36,14 +42,8 @@ import com.moutamid.signalcopy.databinding.FragmentChatBinding;
 import com.moutamid.signalcopy.listeners.ContactListener;
 import com.moutamid.signalcopy.model.ContactsModel;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Random;
 import java.util.UUID;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatFragment extends Fragment {
     FragmentChatBinding binding;
@@ -97,7 +97,8 @@ public class ChatFragment extends Fragment {
     };
 
     Uri image = Uri.EMPTY;
-    CircleImageView profile2;
+    ImageView profile;
+    TextView textView;
 
     private void updateContact(ContactsModel model) {
         Dialog dialog = new Dialog(requireContext());
@@ -110,31 +111,144 @@ public class ChatFragment extends Fragment {
         MaterialButton save = dialog.findViewById(R.id.save);
         MaterialButton add = dialog.findViewById(R.id.add);
         MaterialButton delete = dialog.findViewById(R.id.delete);
+        MaterialButton back = dialog.findViewById(R.id.back);
+        MaterialButton text = dialog.findViewById(R.id.textBtn);
         TextInputLayout name = dialog.findViewById(R.id.name);
-        TextInputLayout time = dialog.findViewById(R.id.time);
+        TextInputLayout iconName = dialog.findViewById(R.id.iconName);
         TextInputLayout number = dialog.findViewById(R.id.number);
         TextInputLayout lastMessage = dialog.findViewById(R.id.lastMessage);
+        TextInputLayout time = dialog.findViewById(R.id.time);
+
+        View profile2 = dialog.findViewById(R.id.profile2);
+        profile = profile2.findViewById(R.id.profile);
+        textView = profile2.findViewById(R.id.text);
+
+        textView.setTextSize(20);
+
+        int[] backColor = {model.bgColor};
+        int[] textColor = {model.textColor};
+
+        back.setEnabled(false);
+        text.setEnabled(false);
+
+        text.setOnClickListener(v -> {
+            ColorPickerDialogBuilder
+                    .with(requireContext())
+                    .setTitle("Choose color")
+                    .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+                    .density(12)
+                    .setOnColorSelectedListener(new OnColorSelectedListener() {
+                        @Override
+                        public void onColorSelected(int selectedColor) {
+
+                        }
+                    })
+                    .setPositiveButton("ok", new ColorPickerClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
+                            textColor[0] = selectedColor;
+                            textView.setTextColor(selectedColor);
+                        }
+                    })
+                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .build()
+                    .show();
+        });
+
+        back.setOnClickListener(v -> {
+            ColorPickerDialogBuilder
+                    .with(requireContext())
+                    .setTitle("Choose color")
+                    .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+                    .density(12)
+                    .setOnColorSelectedListener(new OnColorSelectedListener() {
+                        @Override
+                        public void onColorSelected(int selectedColor) {
+
+                        }
+                    })
+                    .setPositiveButton("ok", new ColorPickerClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
+                            backColor[0] = selectedColor;
+                            ((MaterialCardView) profile2).setCardBackgroundColor(selectedColor);
+                        }
+                    })
+                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .build()
+                    .show();
+        });
+
+
+        iconName.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                back.setEnabled(!s.toString().isEmpty());
+                text.setEnabled(!s.toString().isEmpty());
+
+                if (s.toString().isEmpty()) {
+                    textView.setVisibility(View.GONE);
+                    profile.setVisibility(View.VISIBLE);
+                } else {
+                    if (image.toString().isEmpty()) {
+                        textView.setVisibility(View.VISIBLE);
+                        profile.setVisibility(View.GONE);
+                        textView.setText(s);
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        delete.setOnClickListener(v -> {
+            image = Uri.EMPTY;
+            profile.setImageResource(R.drawable.profile_icon);
+            if (!iconName.getEditText().getText().toString().isEmpty()) {
+                textView.setVisibility(View.VISIBLE);
+                profile.setVisibility(View.GONE);
+                textView.setText(iconName.getEditText().getText().toString());
+            }
+        });
 
         title.setText("Update Contact");
 
-        profile2 = dialog.findViewById(R.id.profile2);
+        profile = dialog.findViewById(R.id.profile2).findViewById(R.id.profile);
+        textView = dialog.findViewById(R.id.profile2).findViewById(R.id.text);
+
 
         name.getEditText().setText(model.name);
+        iconName.getEditText().setText(model.iconName);
         number.getEditText().setText(model.number);
         lastMessage.getEditText().setText(model.lastMessage);
         time.getEditText().setText(model.time);
-
-        Glide.with(requireContext()).load(model.image).placeholder(
-                new AvatarGenerator.AvatarBuilder(requireContext())
-                        .setLabel(model.name.trim().toUpperCase(Locale.ROOT))
-                        .setAvatarSize(70)
-                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
-                        .setTextSize(13)
-                        .toCircle()
-                        .build()
-        ).into(profile2);
-
         image = Uri.parse(model.image);
+
+        if (model.image.isEmpty()) {
+            textView.setVisibility(View.VISIBLE);
+            profile.setVisibility(View.GONE);
+            textView.setText(model.iconName);
+            textView.setTextColor(model.textColor);
+            ((MaterialCardView) profile2).setCardBackgroundColor(model.bgColor);
+        }
 
         add.setOnClickListener(v -> {
             if (Constants.checkPermission(requireContext())) {
@@ -161,31 +275,21 @@ public class ChatFragment extends Fragment {
             }
         });
 
-        delete.setOnClickListener(v -> {
-            image = Uri.EMPTY;
-            Glide.with(requireContext()).load(image).placeholder(
-                    new AvatarGenerator.AvatarBuilder(requireContext())
-                            .setLabel(name.getEditText().getText().toString().trim().toUpperCase(Locale.ROOT))
-                            .setAvatarSize(70)
-                            .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
-                            .setTextSize(13)
-                            .toCircle()
-                            .build()
-            ).into(profile2);
-        });
-
         save.setOnClickListener(v -> {
             if (name.getEditText().getText().toString().isEmpty() || time.getEditText().getText().toString().isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill all details", Toast.LENGTH_SHORT).show();
             } else {
                 ArrayList<ContactsModel> list = Stash.getArrayList(Constants.USERS, ContactsModel.class);
                 int index = retrieveIndex(model, list);
-                if (index != -1){
+                if (index != -1) {
                     list.get(index).image = image.toString();
                     list.get(index).name = name.getEditText().getText().toString();
+                    list.get(index).iconName = iconName.getEditText().getText().toString();
                     list.get(index).lastMessage = lastMessage.getEditText().getText().toString();
                     list.get(index).number = number.getEditText().getText().toString();
                     list.get(index).time = time.getEditText().getText().toString();
+                    list.get(index).textColor = textColor[0];
+                    list.get(index).bgColor = backColor[0];
                 }
                 Stash.put(Constants.USERS, list);
                 getList();
@@ -201,7 +305,7 @@ public class ChatFragment extends Fragment {
     private int retrieveIndex(ContactsModel model, ArrayList<ContactsModel> list) {
         for (int i = 0; i < list.size(); i++) {
             ContactsModel contactsModel = list.get(i);
-            if (contactsModel.id.equals(model.id)){
+            if (contactsModel.id.equals(model.id)) {
                 return i;
             }
         }
@@ -220,24 +324,121 @@ public class ChatFragment extends Fragment {
         MaterialButton save = dialog.findViewById(R.id.save);
         MaterialButton add = dialog.findViewById(R.id.add);
         MaterialButton delete = dialog.findViewById(R.id.delete);
+        MaterialButton back = dialog.findViewById(R.id.back);
+        MaterialButton text = dialog.findViewById(R.id.textBtn);
         TextInputLayout name = dialog.findViewById(R.id.name);
+        TextInputLayout iconName = dialog.findViewById(R.id.iconName);
         TextInputLayout number = dialog.findViewById(R.id.number);
         TextInputLayout lastMessage = dialog.findViewById(R.id.lastMessage);
         TextInputLayout time = dialog.findViewById(R.id.time);
 
-        profile2 = dialog.findViewById(R.id.profile2);
+        View profile2 = dialog.findViewById(R.id.profile2);
+        profile = profile2.findViewById(R.id.profile);
+        textView = profile2.findViewById(R.id.text);
+
+        textView.setTextSize(20);
+
+        int[] backColor = {R.color.active};
+        int[] textColor = {R.color.black};
+
+        back.setEnabled(false);
+        text.setEnabled(false);
+
+        text.setOnClickListener(v -> {
+            ColorPickerDialogBuilder
+                    .with(requireContext())
+                    .setTitle("Choose color")
+                    .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+                    .density(12)
+                    .setOnColorSelectedListener(new OnColorSelectedListener() {
+                        @Override
+                        public void onColorSelected(int selectedColor) {
+
+                        }
+                    })
+                    .setPositiveButton("ok", new ColorPickerClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
+                            textColor[0] = selectedColor;
+                            textView.setTextColor(selectedColor);
+                        }
+                    })
+                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .build()
+                    .show();
+        });
+
+        back.setOnClickListener(v -> {
+            ColorPickerDialogBuilder
+                    .with(requireContext())
+                    .setTitle("Choose color")
+                    .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+                    .density(12)
+                    .setOnColorSelectedListener(new OnColorSelectedListener() {
+                        @Override
+                        public void onColorSelected(int selectedColor) {
+
+                        }
+                    })
+                    .setPositiveButton("ok", new ColorPickerClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int selectedColor, Integer[] allColors) {
+                            backColor[0] = selectedColor;
+                            Toast.makeText(requireContext(), "" + selectedColor, Toast.LENGTH_SHORT).show();
+                            ((MaterialCardView) profile2).setCardBackgroundColor(selectedColor);
+                        }
+                    })
+                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .build()
+                    .show();
+        });
+        iconName.getEditText().addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                back.setEnabled(!s.toString().isEmpty());
+                text.setEnabled(!s.toString().isEmpty());
+
+                if (s.toString().isEmpty()) {
+                    textView.setVisibility(View.GONE);
+                    profile.setVisibility(View.VISIBLE);
+                } else {
+                    if (image.toString().isEmpty()) {
+                        textView.setVisibility(View.VISIBLE);
+                        profile.setVisibility(View.GONE);
+                        textView.setText(s);
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         delete.setOnClickListener(v -> {
             image = Uri.EMPTY;
-            Glide.with(requireContext()).load(image).placeholder(
-                    new AvatarGenerator.AvatarBuilder(requireContext())
-                            .setLabel(name.getEditText().getText().toString().trim().toUpperCase(Locale.ROOT))
-                            .setAvatarSize(70)
-                            .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
-                            .setTextSize(13)
-                            .toCircle()
-                            .build()
-            ).into(profile2);
+            profile.setImageResource(R.drawable.profile_icon);
+            if (!iconName.getEditText().getText().toString().isEmpty()) {
+                textView.setVisibility(View.VISIBLE);
+                profile.setVisibility(View.GONE);
+                textView.setText(iconName.getEditText().getText().toString());
+            }
         });
 
         add.setOnClickListener(v -> {
@@ -269,7 +470,14 @@ public class ChatFragment extends Fragment {
             if (name.getEditText().getText().toString().isEmpty() || time.getEditText().getText().toString().isEmpty()) {
                 Toast.makeText(requireContext(), "Please fill all details", Toast.LENGTH_SHORT).show();
             } else {
-                ContactsModel model = new ContactsModel(UUID.randomUUID().toString(), name.getEditText().getText().toString(), image.toString(), lastMessage.getEditText().getText().toString(), number.getEditText().getText().toString(), time.getEditText().getText().toString());
+                ContactsModel model = new ContactsModel(UUID.randomUUID().toString(),
+                        iconName.getEditText().getText().toString(),
+                        name.getEditText().getText().toString(),
+                        image.toString(),
+                        lastMessage.getEditText().getText().toString(),
+                        number.getEditText().getText().toString(),
+                        time.getEditText().getText().toString(), textColor[0], backColor[0]);
+
                 ArrayList<ContactsModel> list = Stash.getArrayList(Constants.USERS, ContactsModel.class);
                 list.add(model);
                 Stash.put(Constants.USERS, list);
@@ -292,7 +500,9 @@ public class ChatFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
             image = data.getData();
-            Glide.with(this).load(image).into(profile2);
+            profile.setVisibility(View.VISIBLE);
+            textView.setVisibility(View.GONE);
+            Glide.with(this).load(image).into(profile);
         }
     }
 }

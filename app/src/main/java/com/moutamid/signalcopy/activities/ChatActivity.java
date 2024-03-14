@@ -123,14 +123,11 @@ public class ChatActivity extends AppCompatActivity {
         binding.message.requestFocus();
         hideKeyboard();
 
-
-
-        binding.scrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
-            @Override
-            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-                isLastVisible = !v.canScrollVertically(1);
-            }
-        });
+        binding.profile.cardViewRoot.setOnClickListener(v -> showProfile());
+        binding.profile2.cardViewRoot.setOnClickListener(v -> showProfile());
+        binding.name.setOnClickListener(v -> showProfile());
+        binding.name2.setOnClickListener(v -> showProfile());
+        binding.more.setOnClickListener(v -> showProfile());
 
         binding.getRoot().getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -160,6 +157,7 @@ public class ChatActivity extends AppCompatActivity {
         binding.scrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
             public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                isLastVisible = !v.canScrollVertically(1);
                 if (scrollY == 0) {
                     setStatusBarColor(getResources().getColor(R.color.white));
                     binding.toolbar.setBackgroundColor(getResources().getColor(R.color.white));
@@ -177,23 +175,47 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        Glide.with(this)
-                .load(contactsModel.image).placeholder(new AvatarGenerator.AvatarBuilder(this)
-                        .setLabel(contactsModel.name.trim().toUpperCase(Locale.ROOT))
-                        .setAvatarSize(70)
-                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
-                        .setTextSize(13)
-                        .toCircle()
-                        .build()).into(binding.profile);
+        if (contactsModel.image.isEmpty()){
+            binding.profile.cardViewRoot.setCardBackgroundColor(contactsModel.bgColor);
+            binding.profile.text.setTextColor(contactsModel.textColor);
+            binding.profile.text.setText(contactsModel.iconName);
+            binding.profile.text.setVisibility(View.VISIBLE);
+            binding.profile.profile.setVisibility(View.GONE);
 
-        Glide.with(this)
-                .load(contactsModel.image).placeholder(new AvatarGenerator.AvatarBuilder(this)
-                        .setLabel(contactsModel.name.trim().toUpperCase(Locale.ROOT))
-                        .setAvatarSize(70)
-                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
-                        .setTextSize(13)
-                        .toCircle()
-                        .build()).into(binding.profile2);
+            binding.profile.text.setTextSize(11);
+            binding.profile2.text.setTextSize(22);
+
+            binding.profile2.cardViewRoot.setCardBackgroundColor(contactsModel.bgColor);
+            binding.profile2.text.setTextColor(contactsModel.textColor);
+            binding.profile2.text.setText(contactsModel.iconName);
+            binding.profile2.text.setVisibility(View.VISIBLE);
+            binding.profile2.profile.setVisibility(View.GONE);
+        } else {
+            binding.profile.text.setVisibility(View.GONE);
+            binding.profile.profile.setVisibility(View.VISIBLE);
+            binding.profile2.text.setVisibility(View.GONE);
+            binding.profile2.profile.setVisibility(View.VISIBLE);
+            Glide.with(this).load(contactsModel.image).into(binding.profile.profile);
+            Glide.with(this).load(contactsModel.image).into(binding.profile2.profile);
+        }
+
+//        Glide.with(this)
+//                .load(contactsModel.image).placeholder(new AvatarGenerator.AvatarBuilder(this)
+//                        .setLabel(contactsModel.name.trim().toUpperCase(Locale.ROOT))
+//                        .setAvatarSize(70)
+//                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
+//                        .setTextSize(13)
+//                        .toCircle()
+//                        .build()).into(binding.profile);
+//
+//        Glide.with(this)
+//                .load(contactsModel.image).placeholder(new AvatarGenerator.AvatarBuilder(this)
+//                        .setLabel(contactsModel.name.trim().toUpperCase(Locale.ROOT))
+//                        .setAvatarSize(70)
+//                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
+//                        .setTextSize(13)
+//                        .toCircle()
+//                        .build()).into(binding.profile2);
 
         binding.back.setOnClickListener(v -> onBackPressed());
 
@@ -312,19 +334,26 @@ public class ChatActivity extends AppCompatActivity {
                 if (Stash.getBoolean(Constants.EDIT_MODE, false)) {
                     new MaterialAlertDialogBuilder(this)
                             .setMessage("Please Confirm")
+                            .setNeutralButton("As a date", (dialog, which) -> {
+                                sendTime(binding.message.getText().toString());
+                            })
                             .setPositiveButton("Receive", (dialog, which) -> {
                                 dialog.dismiss();
-                                receive(binding.message.getText().toString() + "\t\t", false, binding.message.getText().toString());
+                                receive(binding.message.getText().toString() + "\t\t", false, binding.message.getText().toString(), false);
                             }).setNegativeButton("Send", (dialog, which) -> {
                                 dialog.dismiss();
-                                send(binding.message.getText().toString() + "\t\t\t", false, binding.message.getText().toString());
+                                send(binding.message.getText().toString() + "\t\t\t", false, binding.message.getText().toString(), false);
                             })
                             .show();
                 } else {
-                    send(binding.message.getText().toString() + "\t\t\t", false, binding.message.getText().toString());
+                    send(binding.message.getText().toString() + "\t\t\t", false, binding.message.getText().toString(), false);
                 }
             }
         });
+    }
+
+    private void showProfile() {
+        startActivity(new Intent(this, UserProfileActivity.class));
     }
 
     private void getMessages() {
@@ -446,7 +475,7 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    private void receive(String message, boolean isMedia, String last) {
+    private void receive(String message, boolean isMedia, String last, boolean isDate) {
         if (!message.isEmpty() || isMedia) {
             binding.message.setText("");
             contactsModel.lastMessage = last;
@@ -456,7 +485,7 @@ public class ChatActivity extends AppCompatActivity {
             chatList.set(index, contactsModel);
             Stash.put(Constants.USERS, chatList);
             String s = new SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(new Date().getTime());
-            MessageModel messageModel = new MessageModel(UUID.randomUUID().toString(), contactsModel.id, message, imageUri.toString(), s, isMedia, false);
+            MessageModel messageModel = new MessageModel(UUID.randomUUID().toString(), contactsModel.id, message, imageUri.toString(), s, isMedia, isDate);
             list.add(messageModel);
             Stash.put(contactsModel.id, list);
             adapter.notifyItemInserted(list.size() - 1);
@@ -478,7 +507,30 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    private void send(String message, boolean isMedia, String last) {
+    private void sendTime(String message) {
+        if (!message.isEmpty()) {
+            binding.message.setText("");
+            UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
+            MessageModel messageModel = new MessageModel(UUID.randomUUID().toString(), userModel.number, message, imageUri.toString(), message, false, true);
+            list.add(messageModel);
+            Stash.put(contactsModel.id, list);
+            adapter.notifyItemInserted(list.size() - 1);
+            binding.scrollView.post(new Runnable() {
+                @Override
+                public void run() {
+                    View lastChild = binding.scrollView.getChildAt(binding.scrollView.getChildCount() - 1);
+                    int bottom = lastChild.getBottom() + binding.scrollView.getPaddingBottom();
+                    int sy = binding.scrollView.getScrollY();
+                    int sh = binding.scrollView.getHeight();
+                    int delta = bottom - (sy + sh);
+                    binding.scrollView.smoothScrollBy(0, delta);
+                }
+            });
+            binding.message.requestFocus();
+        }
+    }
+
+    private void send(String message, boolean isMedia, String last, boolean isDate) {
         if (!message.isEmpty() || isMedia) {
             binding.message.setText("");
             contactsModel.lastMessage = last;
@@ -489,7 +541,7 @@ public class ChatActivity extends AppCompatActivity {
             Stash.put(Constants.USERS, chatList);
             UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
             String s = new SimpleDateFormat("hh:mm aa", Locale.getDefault()).format(new Date().getTime());
-            MessageModel messageModel = new MessageModel(UUID.randomUUID().toString(), userModel.number, message, imageUri.toString(), s, isMedia, false);
+            MessageModel messageModel = new MessageModel(UUID.randomUUID().toString(), userModel.number, message, imageUri.toString(), s, isMedia, isDate);
             list.add(messageModel);
             Stash.put(contactsModel.id, list);
             adapter.notifyItemInserted(list.size() - 1);
@@ -615,18 +667,18 @@ public class ChatActivity extends AppCompatActivity {
                         .setPositiveButton("Receive", (dialog, which) -> {
                             dialog.dismiss();
                             imageUri = Uri.parse(image);
-                            receive(message.getText().toString(), true, "Photo");
+                            receive(message.getText().toString(), true, "Photo", false);
                             imageUri = Uri.EMPTY;
                         }).setNegativeButton("Send", (dialog, which) -> {
                             dialog.dismiss();
                             imageUri = Uri.parse(image);
-                            send(message.getText().toString(), true, "Photo");
+                            send(message.getText().toString(), true, "Photo", false);
                             imageUri = Uri.EMPTY;
                         })
                         .show();
             } else {
                 imageUri = Uri.parse(image);
-                send(message.getText().toString(), true, "Photo");
+                send(message.getText().toString(), true, "Photo", false);
                 imageUri = Uri.EMPTY;
             }
         });

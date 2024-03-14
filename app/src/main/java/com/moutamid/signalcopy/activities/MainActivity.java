@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.avatarfirst.avatargenlib.AvatarGenerator;
 import com.bumptech.glide.Glide;
@@ -32,8 +33,7 @@ public class MainActivity extends AppCompatActivity {
         Constants.checkApp(this);
 
 
-
-        binding.profile.setOnClickListener(v -> {
+        binding.profile.cardViewRoot.setOnClickListener(v -> {
             startActivity(new Intent(this, SettingActivity.class));
         });
         binding.more.setOnClickListener(v -> {
@@ -62,17 +62,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
-
         Log.d(TAG, "onCreate: " + userModel);
 
-        Glide.with(this).load(userModel.image).placeholder(
-                new AvatarGenerator.AvatarBuilder(MainActivity.this)
-                        .setLabel(userModel.name.trim().toUpperCase(Locale.ROOT))
-                        .setAvatarSize(70)
-                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
-                        .setTextSize(13)
-                        .toCircle()
-                        .build()
-        ).into(binding.profile);
+        if (userModel.image.isEmpty()){
+            binding.profile.text.setTextSize(11);
+            binding.profile.cardViewRoot.setCardBackgroundColor(userModel.bgColor);
+            binding.profile.text.setTextColor(userModel.textColor);
+            binding.profile.text.setText(userModel.iconName);
+            binding.profile.text.setVisibility(View.VISIBLE);
+            binding.profile.profile.setVisibility(View.GONE);
+        } else {
+            binding.profile.text.setVisibility(View.GONE);
+            binding.profile.profile.setVisibility(View.VISIBLE);
+            Glide.with(this).load(userModel.image).into(binding.profile.profile);
+        }
     }
 }

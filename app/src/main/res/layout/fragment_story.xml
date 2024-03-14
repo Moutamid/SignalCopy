@@ -19,12 +19,12 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal">
 
-            <de.hdodenhof.circleimageview.CircleImageView
+            <include
+                layout="@layout/profile_icon"
                 android:id="@+id/profile"
                 android:layout_width="52dp"
                 android:layout_height="52dp"
-                android:layout_centerVertical="true"
-                android:src="@drawable/profile_icon" />
+                android:layout_centerVertical="true" />
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/camera"

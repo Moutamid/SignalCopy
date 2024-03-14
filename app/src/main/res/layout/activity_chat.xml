@@ -39,13 +39,13 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <de.hdodenhof.circleimageview.CircleImageView
+        <include
+            layout="@layout/profile_icon"
             android:id="@+id/profile"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginStart="12dp"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/profile_icon" />
+            android:layout_gravity="center_horizontal" />
 
         <TextView
             android:id="@+id/name"
@@ -130,12 +130,12 @@
             android:orientation="vertical"
             android:padding="10dp">
 
-            <de.hdodenhof.circleimageview.CircleImageView
+            <include
+                layout="@layout/profile_icon"
                 android:id="@+id/profile2"
                 android:layout_width="70dp"
                 android:layout_height="70dp"
-                android:layout_gravity="center_horizontal"
-                android:src="@drawable/profile_icon" />
+                android:layout_gravity="center_horizontal"/>
 
             <TextView
                 android:id="@+id/name2"

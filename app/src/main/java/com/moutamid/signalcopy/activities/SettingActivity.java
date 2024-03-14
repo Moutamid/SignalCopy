@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import com.avatarfirst.avatargenlib.AvatarGenerator;
 import com.bumptech.glide.Glide;
@@ -26,19 +27,6 @@ public class SettingActivity extends AppCompatActivity {
 
         binding.back.setOnClickListener(v -> onBackPressed());
 
-        UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
-        Glide.with(this).load(userModel.image).placeholder(
-                new AvatarGenerator.AvatarBuilder(SettingActivity.this)
-                        .setLabel(userModel.name.trim().toUpperCase(Locale.ROOT))
-                        .setAvatarSize(90)
-                        .setBackgroundColor(Constants.COLORS[new Random().nextInt(Constants.COLORS.length)])
-                        .setTextSize(16)
-                        .toCircle()
-                        .build()
-        ).into(binding.profile2);
-        binding.name.setText(userModel.name);
-        binding.number.setText(userModel.number);
-
         binding.editMode.setChecked(Stash.getBoolean(Constants.EDIT_MODE, false));
 
         binding.editMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -49,5 +37,25 @@ public class SettingActivity extends AppCompatActivity {
             startActivity(new Intent(this, ProfileActivity.class));
         });
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
+        if (userModel.image.isEmpty()){
+            binding.profile2.text.setTextSize(26);
+            binding.profile2.cardViewRoot.setCardBackgroundColor(userModel.bgColor);
+            binding.profile2.text.setTextColor(userModel.textColor);
+            binding.profile2.text.setText(userModel.iconName);
+            binding.profile2.text.setVisibility(View.VISIBLE);
+            binding.profile2.profile.setVisibility(View.GONE);
+        } else {
+            binding.profile2.text.setVisibility(View.GONE);
+            binding.profile2.profile.setVisibility(View.VISIBLE);
+            Glide.with(this).load(userModel.image).into(binding.profile2.profile);
+        }
+        binding.name.setText(userModel.name);
+        binding.number.setText(userModel.number);
     }
 }

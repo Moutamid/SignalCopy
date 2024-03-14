@@ -43,6 +43,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     private static final int MSG_TYPE_LEFT_MEDIA = 3;
     private static final int MSG_TYPE_RIGHT_MEDIA_CAPTION = 4;
     private static final int MSG_TYPE_LEFT_MEDIA_CAPTION = 5;
+    private static final int DATE_TYPE = 6;
     View rc;
     public MessageAdapter(Context context, ArrayList<MessageModel> list, String name, DeleteListener deleteListener, View chatRC) {
         this.context = context;
@@ -56,7 +57,9 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @Override
     public MessageVH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
-        if (viewType == MSG_TYPE_LEFT) {
+        if (viewType == DATE_TYPE) {
+            view = LayoutInflater.from(context).inflate(R.layout.date_item, parent, false);
+        } else if (viewType == MSG_TYPE_LEFT) {
             view = LayoutInflater.from(context).inflate(R.layout.chat_left_side, parent, false);
         } else if (viewType == MSG_TYPE_RIGHT) {
             view = LayoutInflater.from(context).inflate(R.layout.chat_right, parent, false);
@@ -76,8 +79,12 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public void onBindViewHolder(@NonNull MessageVH holder, int position) {
         MessageModel model = list.get(holder.getAbsoluteAdapterPosition());
 
-        holder.message.setText(model.getMessage() + "\t\t\t");
-        holder.time.setText(model.getTimestamp() + "");
+        if (!model.isDate()){
+            holder.message.setText(model.getMessage() + "\t\t\t");
+            holder.time.setText(model.getTimestamp() + "");
+        } else {
+            holder.time.setText(model.getTimestamp() + "");
+        }
 
         if (model.isMedia()){
             Glide.with(context).load(model.getImage()).placeholder(R.color.black).into(holder.imageView);
@@ -162,26 +169,30 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public int getItemViewType(int position) {
         //get currently signed in user
         UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
-        if (userModel.number.equals(list.get(position).getSenderID())){
-            if (list.get(position).isMedia()){
-                if (!list.get(position).getMessage().isEmpty()){
-                    return MSG_TYPE_RIGHT_MEDIA_CAPTION;
+        if (!list.get(position).isDate()) {
+            if (userModel.number.equals(list.get(position).getSenderID())) {
+                if (list.get(position).isMedia()) {
+                    if (!list.get(position).getMessage().isEmpty()) {
+                        return MSG_TYPE_RIGHT_MEDIA_CAPTION;
+                    } else {
+                        return MSG_TYPE_RIGHT_MEDIA;
+                    }
                 } else {
-                    return MSG_TYPE_RIGHT_MEDIA;
+                    return MSG_TYPE_RIGHT;
                 }
             } else {
-                return MSG_TYPE_RIGHT;
+                if (list.get(position).isMedia()) {
+                    if (!list.get(position).getMessage().isEmpty()) {
+                        return MSG_TYPE_LEFT_MEDIA_CAPTION;
+                    } else {
+                        return MSG_TYPE_LEFT_MEDIA;
+                    }
+                } else {
+                    return MSG_TYPE_LEFT;
+                }
             }
         } else {
-            if (list.get(position).isMedia()){
-                if (!list.get(position).getMessage().isEmpty()){
-                    return MSG_TYPE_LEFT_MEDIA_CAPTION;
-                } else {
-                    return MSG_TYPE_LEFT_MEDIA;
-                }
-            } else {
-                return MSG_TYPE_LEFT;
-            }
+            return DATE_TYPE;
         }
     }
 

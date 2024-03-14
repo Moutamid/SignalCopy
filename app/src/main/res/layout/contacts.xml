@@ -17,12 +17,12 @@
         android:gravity="center_vertical"
         android:padding="12dp">
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/profile"
+        <include
+            layout="@layout/profile_icon"
+            android:id="@+id/profile2"
             android:layout_width="52dp"
             android:layout_height="52dp"
-            android:layout_centerVertical="true"
-            android:src="@drawable/profile_icon" />
+            android:layout_centerVertical="true" />
 
         <LinearLayout
             android:layout_width="match_parent"

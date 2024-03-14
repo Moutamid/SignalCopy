@@ -38,6 +38,7 @@ android {
 dependencies {
     implementation("com.fxn769:stash:1.3.2")
     implementation("com.hbb20:ccp:2.7.0")
+    implementation("com.github.QuadFlask:colorpicker:0.0.15")
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation("com.github.amoskorir:avatarimagegenerator:1.5.0")
     implementation("com.github.bumptech.glide:glide:4.16.0")
