@@ -357,6 +357,8 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         });
+
+        getMessages();
     }
 
     private void showProfile() {
@@ -367,9 +369,7 @@ public class ChatActivity extends AppCompatActivity {
         list = Stash.getArrayList(contactsModel.id, MessageModel.class);
         adapter = new MessageAdapter(this, list, contactsModel.name, deleteListener, binding.chatRC);
         binding.chatRC.setAdapter(adapter);
-//        // binding.chatRC.scrollToPosition(list.size() - 1);
-//        binding.chatRC.smoothScrollToPosition(binding.chatRC.getAdapter().getItemCount() - 1);
-//        binding.chatRC.getLayoutManager().scrollToPosition(adapter.getItemCount() - 1);
+
         binding.scrollView.post(new Runnable() {
             @Override
             public void run() {
@@ -384,7 +384,6 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getMessages();
     }
 
     DeleteListener deleteListener = new DeleteListener() {
@@ -453,7 +452,7 @@ public class ChatActivity extends AppCompatActivity {
         int i = retrievePosition(list, messageModel.getId());
         if (i != -1) {
             msg = msg.isEmpty() ? msg : msg + "\t\t\t";
-            list.get(i).setMessage(msg.trim());
+            list.get(i).setMessage(msg);
             list.get(i).setTimestamp(time);
             adapter.notifyItemChanged(i);
             Stash.put(contactsModel.id, list);
