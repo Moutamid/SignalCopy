@@ -16,4 +16,19 @@ public class ContactsModel {
         this.textColor = textColor;
         this.bgColor = bgColor;
     }
+
+    @Override
+    public String toString() {
+        return "ContactsModel{" +
+                "id='" + id + '\'' +
+                ", iconName='" + iconName + '\'' +
+                ", name='" + name + '\'' +
+                ", image='" + image + '\'' +
+                ", lastMessage='" + lastMessage + '\'' +
+                ", number='" + number + '\'' +
+                ", time='" + time + '\'' +
+                ", textColor=" + textColor +
+                ", bgColor=" + bgColor +
+                '}';
+    }
 }

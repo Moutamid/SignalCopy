@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +42,7 @@ import com.moutamid.signalcopy.adapters.ContactsAdapter;
 import com.moutamid.signalcopy.databinding.FragmentChatBinding;
 import com.moutamid.signalcopy.listeners.ContactListener;
 import com.moutamid.signalcopy.model.ContactsModel;
+import com.moutamid.signalcopy.model.UserModel;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -69,12 +71,40 @@ public class ChatFragment extends Fragment {
         return binding.getRoot();
     }
 
+    private static final String TAG = "ChatFragment";
     private void getList() {
         ArrayList<ContactsModel> list = Stash.getArrayList(Constants.USERS, ContactsModel.class);
+
+        if (list.isEmpty()) {
+
+            list.add(new ContactsModel(
+                    "8b82249d-bfc1-47b7-9911-69f6e2a48a92",
+                    "M",
+                    "Moutamid",
+                    "",
+                    "I am fine how are you",
+                    "+123545632365",
+                    "Now",
+                    -792321,
+                    2131099675
+            ));
+            list.add(new ContactsModel(
+                    "c6c1f467-9d80-4241-9f35-a3d4b9e14494",
+                    "SM",
+                    "Suleman",
+                    "",
+                    "Start chatting",
+                    "+923256489124",
+                    "Now",
+                    -792321,
+                    2131099675
+            ));
+            Stash.put(Constants.USERS, list);
+        }
         ContactsAdapter adapter = new ContactsAdapter(requireContext(), list, contactListener);
         binding.chatRC.setAdapter(adapter);
 
-        if (list.size() > 0) {
+        if (!list.isEmpty()) {
             binding.noLayout.setVisibility(View.GONE);
         } else {
             binding.noLayout.setVisibility(View.VISIBLE);

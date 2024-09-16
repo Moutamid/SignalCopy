@@ -367,6 +367,72 @@ public class ChatActivity extends AppCompatActivity {
 
     private void getMessages() {
         list = Stash.getArrayList(contactsModel.id, MessageModel.class);
+        for (MessageModel messageModel : list) {
+            Log.d(TAG, "getMessages: " + messageModel.toString());
+        }
+        if (list.isEmpty() && contactsModel.id.equals("8b82249d-bfc1-47b7-9911-69f6e2a48a92")) {
+            UserModel userModel = (UserModel) Stash.getObject(Constants.STASH_USER, UserModel.class);
+            list.add(new MessageModel(
+                    "896eb955-e406-4c0d-bbb6-188014b11a85",
+                    userModel.number,
+                    "Today",
+                    "",
+                    "Today",
+                    false,
+                    true
+            ));
+
+            list.add(new MessageModel(
+                    "c316a6c4-34ba-4997-a647-0d4371740521",
+                    userModel.number,
+                    "Hello\t\t\t",
+                    "",
+                    "10:03 AM",
+                    false,
+                    false
+            ));
+
+            list.add(new MessageModel(
+                    "97c96688-ea4a-43d9-9d13-a2535e1a4e7d",
+                    userModel.number,
+                    "how are you\t\t\t",
+                    "",
+                    "10:04 AM",
+                    false,
+                    false
+            ));
+
+            list.add(new MessageModel(
+                    "38fcb6a3-2818-412f-8203-e6265a4c958d",
+                    userModel.number,
+                    "hey there\t\t\t",
+                    "",
+                    "10:05 AM",
+                    false,
+                    false
+            ));
+
+            list.add(new MessageModel(
+                    "a76976c3-8969-472b-97b0-1a7e2529c629",
+                    "8b82249d-bfc1-47b7-9911-69f6e2a48a92",
+                    "hiii",
+                    "",
+                    "10:07 AM",
+                    false,
+                    false
+            ));
+            list.add(new MessageModel(
+                    "b9d3a02b-c4e5-48e6-aa7a-66fcaf622ca7",
+                    "8b82249d-bfc1-47b7-9911-69f6e2a48a92",
+                    "I am fine how are you",
+                    "",
+                    "10:07 AM",
+                    false,
+                    false
+            ));
+            Stash.put(contactsModel.id, list);
+        }
+
         adapter = new MessageAdapter(this, list, contactsModel.name, deleteListener, binding.chatRC);
         binding.chatRC.setAdapter(adapter);
 
