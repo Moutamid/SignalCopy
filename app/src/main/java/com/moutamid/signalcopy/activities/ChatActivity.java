@@ -430,6 +430,24 @@ public class ChatActivity extends AppCompatActivity {
                     false,
                     false
             ));
+            list.add(new MessageModel(
+                    "b9d3a02b-c4et5-48e6-aa7a-66fcafdwe22ca7",
+                    userModel.number,
+                    "Image with caption",
+                    "https://static.vecteezy.com/system/resources/thumbnails/024/646/930/small_2x/ai-generated-stray-cat-in-danger-background-animal-background-photo.jpg",
+                    "10:08 AM",
+                    true,
+                    false
+            ));
+            list.add(new MessageModel(
+                    "b9dr3a02b-c4e5-48e6-aa7a-66fcaf6wr22ca7",
+                    "8b82249d-bfc1-47b7-9911-69f6e2a48a92",
+                    "",
+                    "https://images.pexels.com/photos/7542125/pexels-photo-7542125.jpeg?cs=srgb&dl=pexels-kh-ali-li-7542125.jpg&fm=jpg",
+                    "10:08 AM",
+                    true,
+                    false
+            ));
             Stash.put(contactsModel.id, list);
         }
 
